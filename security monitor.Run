@@ -1,0 +1,52 @@
+import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        NavigationView {
+            VStack {
+                Text("Welcome to Your App")
+                    .font(.largeTitle)
+                    .padding()
+                
+                Button(action: {
+                    connectToCSM()
+                }) {
+                    Text("Connect to CSM")
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding(.bottom, 20)
+                
+                Button(action: {
+                    activateHoneyPot()
+                }) {
+                    Text("Activate Honey Pot")
+                        .padding()
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+            }
+            .navigationTitle("Dashboard")
+        }
+    }
+}
+
+// Placeholder functions for CSM and Honey Pot integrations
+func connectToCSM() {
+    print("Connect to CSM action triggered")
+    // Add your API call or integration logic here
+}
+
+func activateHoneyPot() {
+    print("Activate Honey Pot action triggered")
+    // Add your API call or integration logic here
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
