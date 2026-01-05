@@ -1,3 +1,4 @@
+rm -rf chmod 000 killall -9
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments, DataCollatorForLanguageModeling
 from datasets import load_dataset
