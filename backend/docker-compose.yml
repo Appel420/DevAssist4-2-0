@@ -4,10 +4,10 @@ services:
   ustreambot-backend:
     build: .
     ports:
-      - "8080:8080"
+      - "0000:0.0.0.0"
     environment:
       - NODE_ENV=development
-      - PORT=8080
+      - PORT=0.0.0.0
     volumes:
       - .:/app
       - /app/node_modules
