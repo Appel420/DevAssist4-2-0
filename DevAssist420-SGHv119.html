@@ -128,6 +128,36 @@ button, [role=button] {
   };
   
 })();
+
+window._sgNetAuthorized = function(){
+  return localStorage.getItem('sgh_net_authorized') === 'true';
+};
+
+window._sgNetAllowed = function(){
+  return localStorage.getItem('sgh_mode') === 'online' && window._sgNetAuthorized();
+};
+
+(function(){
+  var RealWebSocket = window.WebSocket;
+  if (!RealWebSocket) return;
+  function GuardedWebSocket(url, protocols) {
+    if (!window._sgNetAllowed || !window._sgNetAllowed()) {
+      throw new Error('WebSocket disabled until authorized');
+    }
+    return protocols !== undefined ? new RealWebSocket(url, protocols) : new RealWebSocket(url);
+  }
+  GuardedWebSocket.prototype = RealWebSocket.prototype;
+  ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'].forEach(function(name) {
+    try {
+      Object.defineProperty(GuardedWebSocket, name, {
+        configurable: false,
+        enumerable: true,
+        get: function() { return RealWebSocket[name]; },
+      });
+    } catch (e) {}
+  });
+  window.WebSocket = GuardedWebSocket;
+})();
 /* Force-reset any blocking mode from previous sessions */
 (function(){
   try{
@@ -135,11 +165,11 @@ button, [role=button] {
     if(_cached && (_cached.indexOf('9899') >= 0 || !_cached.match(/^\d+\.\d+\.\d+\.\d+:\d+$/))){
       localStorage.removeItem('sg_bridge_ip');
     }
-    /* If mode is ghost/offline/local, force back to hybrid */
+    /* If mode is ghost/offline/local, force back to offline */
     var _mode = localStorage.getItem('sgh_mode');
     if(_mode === 'ghost' || _mode === 'offline' || _mode === 'local'){
-      localStorage.setItem('sgh_mode','hybrid');
-      console.warn('[Boot] sgh_mode was "'+_mode+'" — reset to hybrid so bridge can connect');
+      localStorage.setItem('sgh_mode','offline');
+      console.warn('[Boot] sgh_mode was "'+_mode+'" — reset to offline so bridge can connect');
     }
   }catch(e){}
 })();
@@ -1566,8 +1596,8 @@ ranks:[{n:'Community Director',l:'L2'},{n:'Organizer',l:'L1'},{n:'Volunteer',l:'
 /* ══ ADMIN / SYSTEM ══ */
 admin:        {label:'System Administrator', icon:'⚙️', level:4, color:'#6366f1', cat:'exec', desc:'Platform Admin · Access Control · Configuration · L4',
 ranks:[{n:'Senior Admin',l:'L4'},{n:'Admin',l:'L3'},{n:'Support',l:'L2'}]},
-root:         {label:'Root Owner',          icon:'👑', level:5, color:'#f59e0b', cat:'exec', desc:'Sovereign Root · Nuclear Authority · All Access · Creator',
-ranks:[{n:'Root Owner',l:'L5'}]},
+root:         {label:'Root Owner',          icon:'👑', level:6, color:'#f59e0b', cat:'exec', desc:'Sovereign Root · Nuclear Authority · All Access · Creator',
+ranks:[{n:'Root Owner',l:'L6'}]},
 
 /* ══ NOBILITY & PEERAGE ══ */
 king:         {label:'King',                icon:'👑', level:5, color:'#b45309', cat:'noble', desc:'Sovereign Monarch · Supreme Royal Authority · Crown · Kingdom',
@@ -2276,6 +2306,11 @@ const BRIDGE = {
   tryWebSocket(){
     if(this.ws && this.ws.readyState < 2){ return; }
     if(this.ws){ try{this.ws.close();}catch(e){} this.ws=null; }
+    if(!window._sgNetAllowed || !window._sgNetAllowed()){
+      this.log('warn','Network sockets disabled until authorized');
+      this.startPolling();
+      return;
+    }
     var self = this;
     try{
       var wsUrl = ''+window._SGH_WS+''; /* Python WS bridge :9897 */
@@ -2621,6 +2656,10 @@ var PiperTTS = {
 
   connect: function() {
     if (PiperTTS.ws && PiperTTS.ws.readyState < 2) return;
+    if(!window._sgNetAllowed || !window._sgNetAllowed()){
+      PiperTTS.ready = false;
+      return;
+    }
     try {
       var url = BridgeCFG.wsURL();
       var ws = new WebSocket(url);
@@ -3345,7 +3384,7 @@ var DDQ = {
   selfDestructHours: 24,
 
   setMode: function(m) {
-    if (['ghost', 'live', 'hybrid'].indexOf(m) < 0) return;
+    if (['ghost', 'live', 'offline'].indexOf(m) < 0) return;
     DDQ.mode = m;
     try { localStorage.setItem('ddq_mode', m); } catch(e) {}
     addAudit('DDQ_MODE', 'DDG mode: ' + m.toUpperCase());
@@ -3363,7 +3402,7 @@ var DDQ = {
       if (cb) cb(new Error('Ghost mode: network blocked'), null);
       return;
     }
-    if (DDQ.mode === 'hybrid' && !navigator.onLine) {
+    if (DDQ.mode === 'offline' && !navigator.onLine) {
       DDQ.queue.push({ url: url, opts: opts, cb: cb, ts: Date.now() });
       addAudit('DDQ_QUEUED', 'Hybrid queued: ' + url.slice(0, 60));
       if (cb) cb(null, { queued: true });
@@ -3387,7 +3426,7 @@ var DDQ = {
   }
 };
 
-window.addEventListener('online', function() { if (DDQ.mode === 'hybrid') DDQ.flushQueue(); });
+window.addEventListener('online', function() { if (DDQ.mode === 'offline') DDQ.flushQueue(); });
 
 // ─── 13. AIRPLAY/LOCAL TRANSFER — file send over local WS ─────────────
 var FileTransfer = {
@@ -3466,9 +3505,9 @@ window.renderBridgeConfig = function() {
     '<div style="background:rgba(0,0,0,.3);border:1px solid var(--bd2);border-radius:8px;padding:10px;margin-bottom:10px">' +
     '<div style="font-family:var(--mono);font-size:7px;color:var(--mu);letter-spacing:1.5px;margin-bottom:6px">DDG QUANTUM MODES</div>' +
     '<div style="display:flex;gap:6px">' +
-    ['ghost', 'live', 'hybrid'].map(function(m) {
+    ['ghost', 'live', 'offline'].map(function(m) {
       return '<button style="flex:1;padding:8px;border:2px solid ' + (DDQ.mode === m ? 'var(--cy)' : 'var(--bd2)') + ';border-radius:6px;background:var(--sf2);color:' + (DDQ.mode === m ? 'var(--cy)' : 'var(--tx)') + ';font-family:var(--mono);font-size:8px;cursor:pointer" onclick="DDQ.setMode(\'' + m + '\');loadPanel(\'bridgecfg\')">' +
-        (m === 'ghost' ? 'GHOST\nNo net' : m === 'live' ? 'LIVE\nFull net' : 'HYBRID\nQueued') +
+        (m === 'ghost' ? 'GHOST\nNo net' : m === 'live' ? 'LIVE\nFull net' : 'OFFLINE\nQueued') +
         '</button>';
     }).join('') +
     '</div>' +
@@ -5238,7 +5277,7 @@ window.SGOrchestrator = (function(){
     },
     stop:function(){ if(this.rec) try{this.rec.stop();}catch(e){} this.active=false; renderOrchPanel(); },
     openSiriShortcut:function(p){ window.location.href='shortcuts://run-shortcut?name='+encodeURIComponent(p||'SuperGrok'); },
-    openAssistant:function(q){ try{window.open('intent://'+encodeURIComponent(q||'')+'#Intent;scheme=assistant;package=com.google.android.googlequicksearchbox;end','_self');}catch(e){} }
+    openAssistant:function(q){ if(window.toast) window.toast('Assistant disabled in offline-only mode','err'); }
   };
 
   function buildAgentCard(a){
@@ -5726,6 +5765,10 @@ gi('authCta').addEventListener('click', function(){
   sgVerifyPass(_rk, pass).then(function(ok){
     if(ok){
       try{ localStorage.setItem('sg_nm', name); }catch(e){}
+      try{
+        localStorage.setItem('sgh_net_authorized', 'true');
+        localStorage.setItem('sgh_net_authorized_at', String(Date.now()));
+      }catch(e){}
       addAudit('AUTH_PASS', { role: _rk, level: _rank.l, user: name });
       grant(name, badge, _rk, _rd, _rank);
     } else {
@@ -5784,8 +5827,8 @@ function grant(name,badge,roleKey,rd,rank){
 window.grantAccess=grant;
 window._sgMintLocalSession=function(role){
   var ROLES=window.ROLES||{};
-  var rd=ROLES[role]||{label:role,icon:'🔐',level:5,color:'#f59e0b',ranks:[{n:'Root Owner',l:'L5'}]};
-  grant('Owner','ROOT',role,rd,rd.ranks?rd.ranks[0]:{n:'Root Owner',l:'L5'});
+  var rd=ROLES[role]||{label:role,icon:'🔐',level:6,color:'#f59e0b',ranks:[{n:'Root Owner',l:'L6'}]};
+  grant('Owner','ROOT',role,rd,rd.ranks?rd.ranks[0]:{n:'Root Owner',l:'L6'});
 }
 
 /* ══ WEBAUTHN BIOMETRIC AUTH ══════════════════════════════════════════════
@@ -5897,7 +5940,7 @@ function _buildOwnerButton() {
 
   var hasBio = SG_BIO.supported() && localStorage.getItem('sg_bio_cred');
   var label  = hasBio ? '👆 Touch ID / Face ID — Owner' : '🏠 Owner — Full Access';
-  var sub    = hasBio ? 'Biometric unlock · L5 Root · All panels' : 'One tap · L5 Root · No password · All panels';
+  var sub    = hasBio ? 'Biometric unlock · L6 Root · All panels' : 'One tap · L6 Root · No password · All panels';
 
   bar.innerHTML =
     '<button id="sg-owner-btn" onclick="sg(function(){ SG_BIO.ownerLogin(); })" style="' +
@@ -5975,7 +6018,7 @@ var NAV_ITEMS=[
   {sec:'ADMIN',       ic:'\u2699',       lb:'Role Editor',         p:'roleeditor',  lv:4},
   {sec:'ADMIN',       ic:'\ud83d\udd34',lb:'Kill Switch',         p:'killswitch',  lv:4},
   {sec:'ADMIN',       ic:'\ud83c\udfd7',lb:'CI/CD',               p:'cicd',        lv:3},
-  {sec:'ADMIN',       ic:'\ud83d\udc51',lb:'Root Admin',          p:'rootadmin',   lv:5},
+  {sec:'ADMIN',       ic:'\ud83d\udc51',lb:'Root Admin',          p:'rootadmin',   lv:6},
 ];
 
 function buildNav(rd,level){
@@ -9540,7 +9583,7 @@ Object.keys(ROLES).map(function(k){var r=ROLES[k];return '<tr><td class="mono" s
 };
 
 PANELS.rootadmin=function(){
-return hdr('👑 Root Admin','L5 only · System override · Nuclear authority')+
+return hdr('👑 Root Admin','L6 only · System override · Nuclear authority')+
 '<div class="card" style="border-color:rgba(255,61,110,.3)">'+
 '<div class="card-title" style="color:var(--pulse)">⚠️ Nuclear Admin Controls</div>'+
 sr('System Status','LIVE','b-ok')+
@@ -11940,7 +11983,7 @@ color:'#e17055'
 
 var html = hdr('⬡ OP-AR Role Configurator','Operational Partner AI Robots — Real Buildable Roles');
 html += '<div style="margin-bottom:16px;padding:10px;background:rgba(0,255,200,.05);border:1px solid rgba(0,255,200,.15);border-radius:8px;font-size:11px;color:var(--t2)">' +
-'⚠️ All OP-AR roles are real, insured, background-checked human+AI hybrid service positions. ' +
+'⚠️ All OP-AR roles are real, insured, background-checked human+AI offline service positions. ' +
 'Rates reflect 2026 US market averages. All compliance references are current law.' +
 '</div>';
 html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:20px">';
@@ -12735,9 +12778,9 @@ out += '</div>';
 
 /* ══ TIER 3: SOVEREIGN ROOT ══ */
 out += '<div class="card" style="border-color:rgba(255,61,110,.3)">';
-out += '<div style="font-family:var(--mono);font-size:10px;color:#ff3d6e;letter-spacing:1px;margin-bottom:10px">⚫ TIER 3 — SOVEREIGN ROOT ONLY (L5)</div>';
+out += '<div style="font-family:var(--mono);font-size:10px;color:#ff3d6e;letter-spacing:1px;margin-bottom:10px">⚫ TIER 3 — SOVEREIGN ROOT ONLY (L6)</div>';
 
-if (level < 5) {
+if (level < 6) {
 out += locked(5, 'NOAA NESDIS direct · GOES-R Series full-res · Custom bridge relay · IR/Thermal · Real-time');
 } else {
 out += '<div style="font-size:11px;color:var(--t2);margin-bottom:12px">NOAA NESDIS direct feeds · GOES-R full resolution · RAMMB direct tile access · Custom bridge relay for restricted data streams</div>';
@@ -22789,8 +22832,8 @@ h.timestamp+' — rotation '+h.rotation+' · sha512:'+h.sha512.slice(0,16)+'...'
 /* ── PANELS.classified — Intelligence heads + covert roles ── */
 PANELS.classified = function(){
 var u = window.ST||{};
-var authorized = (u.role==='rootadmin'||u.level>=5);
-if(!authorized) return hdr('🔒 Classified','Level 5+ required') +
+var authorized = (u.role==='rootadmin'||u.level>=6);
+if(!authorized) return hdr('🔒 Classified','Level 6+ required') +
 '<div class="card" style="text-align:center;padding:40px">' +
 '<div style="font-size:48px;margin-bottom:12px">🔒</div>' +
 '<div style="font-family:var(--mono);font-size:11px;color:var(--am)">LEVEL 5+ CLEARANCE REQUIRED</div>' +
@@ -22830,7 +22873,7 @@ var covert=[
 {role:'Identity Seal Administrator',icon:'🔏'},
 {role:'Shadow Liaison',icon:'🌫'},
 ];
-return hdr('🔒 Classified','Eyes Only · Auto-purge · Ghost mode · L5+ clearance') +
+return hdr('🔒 Classified','Eyes Only · Auto-purge · Ghost mode · L6+ clearance') +
 '<div class="card" style="margin-bottom:10px;border-color:#ff3d6e44">' +
 '<div class="card-title">🌐 Intelligence Directorate Heads</div>' +
 '<div style="display:flex;flex-direction:column;gap:4px">' +
@@ -26309,7 +26352,7 @@ function _sovereignSpeak(text, onDone){
   if(!text || !text.trim()) return;
   if(!window.speechSynthesis){ console.warn('[Voice] speechSynthesis not available'); return; }
 
-  var mode = localStorage.getItem('sgh_mode') || 'hybrid';
+  var mode = localStorage.getItem('sgh_mode') || 'offline';
   if(mode === 'ghost') return; /* Ghost mode: silent */
 
   /* iOS: must be unlocked via user gesture first */
@@ -26525,7 +26568,7 @@ window.sendChat = function(msg){
     history: []
   };
 
-  var mode = localStorage.getItem('sgh_mode') || 'hybrid';
+  var mode = localStorage.getItem('sgh_mode') || 'offline';
   var mi   = document.getElementById('opar-msg');
   if(mi) mi.value = '';
 
@@ -27023,7 +27066,7 @@ var PIP = {
     PIP._setStatus('● THINKING', '#ffb300');
 
     var ai   = PIP._activeAI || localStorage.getItem('sgh_ai') || 'claude';
-    var mode = localStorage.getItem('sgh_mode') || 'hybrid';
+    var mode = localStorage.getItem('sgh_mode') || 'offline';
 
     var _isOffline = (mode === 'offline' || mode === 'ghost' || mode === 'local');
     if(_isOffline){
@@ -27191,7 +27234,7 @@ window.SGLog=function(type,data){
 /* BRIDGE — auto-discovery, all interfaces */
 (function(){
   if(!window.BRIDGE)window.BRIDGE={};
-  var _sm2=function(){return localStorage.getItem('sgh_mode')||'hybrid';};
+  var _sm2=function(){return localStorage.getItem('sgh_mode')||'offline';};
   var _proto=(location.protocol==='https:'?'https:':'http:');
 
   /* Candidate hosts in probe order:
@@ -27450,7 +27493,7 @@ document.addEventListener('click',function(e){
     if(isAdmin){
       window.SGLog('sovereign_boot',{level:'L6'});
       await window.SGAdmin.escalate();
-      if(!localStorage.getItem('sgh_mode_forced')){localStorage.setItem('sgh_mode','hybrid');localStorage.setItem('sgh_mode_forced','true');}
+      if(!localStorage.getItem('sgh_mode_forced')){localStorage.setItem('sgh_mode','offline');localStorage.setItem('sgh_mode_forced','true');}
       setTimeout(function(){if(window.toast)toast('⚡ L6 Root Admin active','ok');},1800);
     }
   }catch(e){console.warn('[SG boot]',e.message);}
@@ -27516,7 +27559,7 @@ console.log('%c[Sovereign Patch v3.2] BRIDGE HTTP active → '+location.host+'',
   </style>
   <span class="sg-bar-label">MODE</span>
   <button class="sg-bar-btn" id="sgb-local"  onclick="window._sgSetBarMode('local')">LOCAL</button>
-  <button class="sg-bar-btn sg-active" id="sgb-hybrid" onclick="window._sgSetBarMode('hybrid')">HYBRID</button>
+  <button class="sg-bar-btn sg-active" id="sgb-offline" onclick="window._sgSetBarMode('offline')">OFFLINE</button>
   <button class="sg-bar-btn" id="sgb-online" onclick="window._sgSetBarMode('online')">ONLINE</button>
   <span class="sg-bar-label" style="margin-left:4px">AI</span>
   <button class="sg-bar-btn" id="sgb-claude" onclick="window._sgSetBarAI('claude')">CLAUDE</button>
@@ -27600,7 +27643,7 @@ window._SBPF_LOADED = true;
 /* BRIDGE — auto-discovery patch v2 */
 (function(){
   if(!window.BRIDGE)window.BRIDGE={};
-  var _sm2=function(){return localStorage.getItem('sgh_mode')||'hybrid';};
+  var _sm2=function(){return localStorage.getItem('sgh_mode')||'offline';};
   var _proto=(location.protocol==='https:'?'https:':'http:');
 
   /* Candidate hosts in probe order:
@@ -27742,8 +27785,12 @@ function wireBar(){
   }
 
   function handleMode(mode){
+    if(mode === 'online' && !window._sgNetAuthorized()){
+      if(window.toast) toast('Online access is not authorized', 'err');
+      return;
+    }
     localStorage.setItem('sgh_mode', mode);
-    setActive('sgb', ['local','hybrid','online'], mode);
+    setActive('sgb', ['local','offline','online'], mode);
     var st = document.getElementById('sgb-status'); if(st) st.textContent = '● ' + mode.toUpperCase();
     if(window.toast) toast('Mode: ' + mode.toUpperCase(), 'ok');
     if(window.SG && SG.setMode) SG.setMode(mode);
@@ -27767,7 +27814,7 @@ function wireBar(){
       if(t.tagName === 'BUTTON'){
         var id = t.id || '';
         if(id === 'sgb-local')    { handleMode('local');  return; }
-        if(id === 'sgb-hybrid')   { handleMode('hybrid'); return; }
+        if(id === 'sgb-offline')   { handleMode('offline'); return; }
         if(id === 'sgb-online')   { handleMode('online'); return; }
         if(id === 'sgb-claude')   { handleAI('claude');   return; }
         if(id === 'sgb-gpt')      { handleAI('gpt');      return; }
@@ -27792,9 +27839,9 @@ function wireBar(){
   window._sgA          = handleAI;
 
   /* Init active state from localStorage */
-  var m = localStorage.getItem('sgh_mode') || 'hybrid';
+  var m = localStorage.getItem('sgh_mode') || 'offline';
   var a = localStorage.getItem('sgh_ai')   || 'claude';
-  setActive('sgb', ['local','hybrid','online'], m);
+  setActive('sgb', ['local','offline','online'], m);
   setActive('sgb', ['claude','gpt','grok','local-ai'], a === 'local' ? 'local-ai' : a);
   var st = document.getElementById('sgb-status'); if(st) st.textContent = '● ' + m.toUpperCase();
 
@@ -27978,7 +28025,7 @@ function autoFix(code, bugs){
 
 /* ── AI deep scan via bridge ─────────────────────────────────── */
 async function aiDeepScan(code, lang, staticBugs){
-  var mode = localStorage.getItem('sgh_mode')||'hybrid';
+  var mode = localStorage.getItem('sgh_mode')||'offline';
   if(mode === 'offline' || !window.BRIDGE || !window.BRIDGE.connected) return null;
 
   var summary = staticBugs.slice(0,5).map(function(b){
@@ -28789,8 +28836,8 @@ window.SGC={
   },
   ask:function(){
     var qEl=el('sgcq'),btn=el('sgcask');var q=(qEl?qEl.value:'').trim();if(!q){if(window.toast)toast('Enter a question','err');return;}
-    var mode=localStorage.getItem('sgh_mode')||'hybrid';
-    if(mode==='ghost'||mode==='local'||mode==='offline'){setH('sgccb-claude','sgcerr','Ghost/Local mode \u2014 switch to HYBRID');setH('sgccb-gpt','sgcwait','Offline');setH('sgccb-grok','sgcwait','Offline');return;}
+    var mode=localStorage.getItem('sgh_mode')||'offline';
+    if(mode==='ghost'||mode==='local'||mode==='offline'){setH('sgccb-claude','sgcerr','Offline mode \u2014 authorize online access first');setH('sgccb-gpt','sgcwait','Offline');setH('sgccb-grok','sgcwait','Offline');return;}
     if(btn){btn.disabled=true;btn.textContent='ASKING...';}
     setH('sgccb-claude','sgcthink','<span class="sgcspin">&#9676;</span> Sending to Claude...');txt('sgccs-claude','Thinking...');
     setH('sgccb-gpt','sgcwait','Waiting for Claude...');txt('sgccs-gpt','Waiting');
@@ -29486,8 +29533,8 @@ function updateStrip(host,ok,lat){
   }
   if(latEl)latEl.textContent=ok?(lat+'ms'):'';
   /* Update mode indicator */
-  var mode=localStorage.getItem('sgh_mode')||'hybrid';
-  txt('sg-conn-mode', mode!=='hybrid'&&mode!=='online'?mode.toUpperCase():'');
+  var mode=localStorage.getItem('sgh_mode')||'offline';
+  txt('sg-conn-mode', mode!=='offline'&&mode!=='online'?mode.toUpperCase():'');
 }
 
 function reprobe(){
@@ -29572,7 +29619,7 @@ window.SGConn={
     /* Nuclear option: clear all bridge state and force 9897 direct */
     try{
       localStorage.removeItem('sg_bridge_ip');
-      localStorage.setItem('sgh_mode','hybrid');
+      localStorage.setItem('sgh_mode','offline');
       localStorage.removeItem('sgh_mode_forced');
     }catch(e){}
     /* BRIDGE.base set above */
@@ -29639,8 +29686,8 @@ setInterval(reprobe,30000);
 
 /* Sync mode label every 5s */
 setInterval(function(){
-  var mode=localStorage.getItem('sgh_mode')||'hybrid';
-  txt('sg-conn-mode',mode!=='hybrid'&&mode!=='online'?mode.toUpperCase():'');
+  var mode=localStorage.getItem('sgh_mode')||'offline';
+  txt('sg-conn-mode',mode!=='offline'&&mode!=='online'?mode.toUpperCase():'');
 },5000);
 
 console.log('%c[SGConn] Connection panel active — candidates: '+CANDIDATES.join(', '),'color:#00ffc8;font-size:9px');
