@@ -46,8 +46,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Message is required and must be a string" }, { status: 400 })
     }
 
-    if (message.length > 1000) {
-      return NextResponse.json({ error: "Message too long. Maximum 1000 characters." }, { status: 400 })
+    if (message.length > 2000) {
+      return NextResponse.json({ error: "Message too long. Maximum 2000 characters." }, { status: 400 })
     }
 
     // Sanitize input
@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
 - SwiftUI and UIKit development
 - iOS app architecture (MVVM, MVC, Clean Architecture)
 - Xcode debugging and optimization
+- Voice transcripts and local VLM captions
 - App Store guidelines and submission process
 - Security best practices for iOS apps
 - Performance optimization

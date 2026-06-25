@@ -27,7 +27,7 @@ export function DevAssistApp() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      text: "🚀 Hello! I'm DevAssist 4.2.0, your local iOS development assistant.\n\nI can help you with:\n• Swift & SwiftUI development\n• iOS architecture & best practices\n• Debugging & optimization\n• App Store guidelines\n• Security implementation\n\nWhat would you like to work on today?",
+      text: "🚀 Hello! I'm DevAssist 4.2.0, your local iOS development assistant.\n\nI can help you with:\n• Swift & SwiftUI development\n• iOS architecture & best practices\n• Debugging & optimization\n• Voice prompts and local transcript flow\n• Visual prompts from a local VLM pipeline\n• Security implementation\n\nWhat would you like to work on today?",
       isUser: false,
       timestamp: new Date(),
       type: "text",

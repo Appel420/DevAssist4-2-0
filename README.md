@@ -46,19 +46,42 @@ A secure, production-ready iOS application that combines video streaming with lo
 3. Update API endpoints in `Configuration.swift`
 4. Build and run on simulator or device
 
-### Backend Setup
-1. Navigate to `backend/` directory
-2. Install dependencies: `npm install`
-3. Set environment variables:
+### Run Steps
+1. Install dependencies:
    \`\`\`bash
-   export NODE_ENV=development
-   export ALLOWED_ORIGINS=http://localhost:3000
+   pnpm install
+   cd backend && npm install
    \`\`\`
-4. Start development server: `npm run dev`
+2. Start the web app:
+   \`\`\`bash
+   pnpm dev
+   \`\`\`
+3. Start the backend:
+   \`\`\`bash
+   cd backend
+   npm run dev
+   \`\`\`
+4. Start the continuous security monitor in a third terminal:
+   \`\`\`bash
+   pnpm csm:monitor
+   \`\`\`
+5. Open the app in your browser and use the mic button for voice prompts.
 
 ### Deployment
 1. **iOS**: Use Xcode's archive and upload to App Store Connect
 2. **Backend**: Run locally with Node.js or Docker
+3. **CSM**: Keep `pnpm csm:monitor` running while you work
+
+## 🔐 Local Q-Resist Stack
+
+- Hashing: BLAKE3, SHA3-512
+- Signatures: Ed25519, ML-DSA-87, Falcon, SLH-DSA
+- KEM: ML-KEM-1024
+- AEAD: XChaCha20-Poly1305
+- Tamper evidence: Merkle tree chaining and SHA3-512 logs
+- Secret sharing: Shamir
+
+Use the local stack as the default foundation for all cryptographic work in this repo.
 
 ## 🔐 Security Configuration
 
@@ -121,14 +144,19 @@ npm run security-audit
 - ✅ Proper error handling
 - ✅ Structured logging
 - ✅ Security headers
+- ✅ Continuous security monitor
 
-## 🔄 CI/CD Pipeline
+### Voice and Visual Input
+- Voice prompts are accepted through the existing microphone flow.
+- Visual prompts can be fed from a local VLM captioning pipeline.
+- Raise the token budget when building larger multimodal responses.
 
-GitHub Actions workflow includes:
+## 🔄 Local Verification
+
 - Security scanning
 - Automated testing
 - Build verification
-- Deployment to production
+- Continuous security monitoring
 
 ## 📄 License
 
@@ -150,4 +178,4 @@ For support and questions:
 
 ---
 
-**Note**: This application follows Apple App Store guidance and keeps all runtime behavior local.
+**Note**: This application keeps runtime behavior local and avoids external AI vendors.

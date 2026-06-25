@@ -4,9 +4,9 @@ export const config = {
     mode: "local-only",
   },
   chat: {
-    maxTokens: 1000,
-    maxHistory: 10,
-    maxMessageLength: 1000,
+    maxTokens: 4096,
+    maxHistory: 20,
+    maxMessageLength: 2000,
   },
   runtime: {
     apiBasePath: "/api",

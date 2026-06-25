@@ -29,11 +29,19 @@ class AIService {
       return "Local debugging tip: reproduce the issue, reduce it to a small case, and verify the result with focused tests."
     }
 
+    if (lowerMessage.includes("voice") || lowerMessage.includes("audio")) {
+      return "Local voice mode is ready: keep the transcript concise, feed it into chat, and expand the answer with nearby context."
+    }
+
+    if (lowerMessage.includes("visual") || lowerMessage.includes("image") || lowerMessage.includes("vision") || lowerMessage.includes("camera")) {
+      return "Local visual mode is ready: describe the frame or pass a caption from your VLM pipeline, then I can reason over it."
+    }
+
     if (lowerMessage.includes("code") || hasCodeContext) {
       return `Here is a local-only example you can adapt:\n\n\`\`\`swift\nimport SwiftUI\n\nstruct ExampleView: View {\n    var body: some View {\n        Text(\"Local-only mode\")\n    }\n}\n\`\`\``
     }
 
-    return `Local-only response: ${cleanMessage}\n\nI can help with Swift, SwiftUI, architecture, testing, and debugging without any external services.`
+    return `Local-only response: ${cleanMessage}\n\nI can help with Swift, SwiftUI, architecture, testing, debugging, voice prompts, and visual prompts without any external services.`
   }
 }
 

@@ -6,6 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
+    "csm:monitor": "node scripts/csm-monitor.js",
     "start": "next start",
     "type-check": "tsc --noEmit"
   },
