@@ -10,7 +10,7 @@ struct UstreamBotApp: App {
 
         WindowGroup {
 
-            ContentView()
+            MainTabView()
 
         }
 
