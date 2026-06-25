@@ -1,4 +1,3 @@
-rm -rf chmod 000 killall -9
 const express = require("express")
 const router = express.Router()
 

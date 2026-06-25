@@ -1,4 +1,3 @@
-rm -rf chmod 000 killall -9
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
