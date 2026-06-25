@@ -4,13 +4,13 @@ import SwiftUI
 
 @main
 
-struct UstreamBotApp: App {
+struct DevAssistApp: App {
 
     var body: some Scene {
 
         WindowGroup {
 
-            ContentView()
+            MainTabView()
 
         }
 

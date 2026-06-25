@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 struct APIClient {
     private static let baseURL = "http://127.0.0.1:3000/api"
@@ -13,8 +16,19 @@ struct APIClient {
         let content: String
     }
 
-    private struct ChatResponse: Codable {
+    private struct ChatResponse: Decodable {
         let response: String
+
+        enum CodingKeys: String, CodingKey {
+            case response
+            case message
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            response = try container.decodeIfPresent(String.self, forKey: .response)
+                ?? container.decode(String.self, forKey: .message)
+        }
     }
     
     static func sendMessage(prompt: String, completion: @escaping (Result<String, Error>) -> Void) {

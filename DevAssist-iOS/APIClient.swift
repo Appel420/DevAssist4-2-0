@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 struct ChatRequest: Codable {
     let message: String
@@ -10,8 +13,19 @@ struct ChatTurn: Codable {
     let content: String
 }
 
-struct ChatResponse: Codable {
+struct ChatResponse: Decodable {
     let response: String
+
+    enum CodingKeys: String, CodingKey {
+        case response
+        case message
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        response = try container.decodeIfPresent(String.self, forKey: .response)
+            ?? container.decode(String.self, forKey: .message)
+    }
 }
 
 class APIClient {

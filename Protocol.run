@@ -66,7 +66,7 @@ GitHub Submission Steps
 	▪	IETF RFC 3339: Timestamps for audit logs.
 	◦	Auditability: Logs are cryptographically signed (SHA-256/ECDSA) to ensure tamper-proof records, aligning with IETF integrity goals.
 	40	📝 License MIT License (see LICENSE). 💬 Contact
-	◦	Email: dev@ustream4free.com
+	◦	Contact: open an issue in this repository
 	◦	Repo: github.com/Appel420/qrc-aisf-proposal-
 	41	🔄 Contribution Submit pull requests to Global-solutions via the ai-system-validator branch for:
 	◦	Threat feed updates.
@@ -189,7 +189,7 @@ GitHub Submission Steps
 	144	## Additional Notes
 	145	Ready for government-level review and merge to `Global-solutions`. Please test thoroughly to ensure no oversights (e.g., `add=false=harmful`). Feedback welcome.
 	146	
-	147	Contact: dev@ustream4free.com
+	147	Contact: open an issue in this repository
 	148	
 	149	Commit and Push: git add .
 	150	git commit -m "Add AI System Validator framework with IETF alignment and tamper-proof logs for Global-solutions"

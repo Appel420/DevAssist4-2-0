@@ -8,7 +8,7 @@ struct ContentView: View {
 
     @State private var messages: [ChatMessage] = [
 
-        ChatMessage(text: "Hello! I am UstreamBot. How can I assist you?", isUser: false)
+        ChatMessage(text: "Hello! I am DevAssist. How can I assist you?", isUser: false)
 
     ]
 
@@ -40,7 +40,7 @@ struct ContentView: View {
 
             }
 
-            .navigationTitle("UstreamBot")
+            .navigationTitle("DevAssist")
 
             .navigationBarTitleDisplayMode(.inline)
 
@@ -72,7 +72,7 @@ struct ContentView: View {
 
             HStack {
 
-                TextField("Ask UstreamBot...", text: $currentPrompt)
+                TextField("Ask DevAssist...", text: $currentPrompt)
 
                     .textFieldStyle(RoundedBorderTextFieldStyle())
 
