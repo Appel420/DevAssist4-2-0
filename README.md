@@ -47,30 +47,26 @@ A secure, production-ready iOS application that combines video streaming with lo
 4. Build and run on simulator or device
 
 ### Run Steps
-1. Install dependencies:
-   \`\`\`bash
-   pnpm install
-   cd backend && npm install
-   \`\`\`
-2. Start the web app:
-   \`\`\`bash
-   pnpm dev
-   \`\`\`
-3. Start the backend:
+1. Install backend dependencies:
    \`\`\`bash
    cd backend
-   npm run dev
+   npm install
    \`\`\`
-4. Start the continuous security monitor in a third terminal:
+2. Start the backend:
    \`\`\`bash
-   pnpm csm:monitor
+   cd backend
+   npm start
    \`\`\`
-5. Open the app in your browser and use the mic button for voice prompts.
+3. Start the continuous security monitor in a third terminal:
+   \`\`\`bash
+   node scripts/csm-monitor.js
+   \`\`\`
+4. Open the iOS app in Xcode and point it at the local backend.
 
 ### Deployment
 1. **iOS**: Use Xcode's archive and upload to App Store Connect
-2. **Backend**: Run locally with Node.js or Docker
-3. **CSM**: Keep `pnpm csm:monitor` running while you work
+2. **Backend**: Run locally with Node.js or Docker on port 3000
+3. **CSM**: Keep `node scripts/csm-monitor.js` running while you work
 
 ## 🔐 Local Q-Resist Stack
 

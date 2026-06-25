@@ -29,7 +29,7 @@ struct ChatResponse: Decodable {
 }
 
 class APIClient {
-    private static let baseURL = "http://127.0.0.1:3000/api"
+    private static let baseURL = "http://127.0.0.1:3000/api/v1"
     
     static func sendMessage(prompt: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/chat") else {

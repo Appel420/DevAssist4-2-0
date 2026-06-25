@@ -72,7 +72,7 @@ async function main() {
       console.log("[CSM] reference scan clean")
     }
 
-    const healthy = await check(process.env.CSM_HEALTH_URL || "http://127.0.0.1:3000/api/health")
+    const healthy = await check(process.env.CSM_HEALTH_URL || "http://127.0.0.1:3000/api/v1/health")
     console.log(healthy ? "[CSM] health ok" : "[CSM] health offline")
   }
 

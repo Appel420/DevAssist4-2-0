@@ -8,9 +8,9 @@ class Configuration {
     // MARK: - API Configuration
     var apiBaseURL: String {
         #if DEBUG
-        return "http://127.0.0.1:3000/api"
+        return "http://127.0.0.1:3000/api/v1"
         #else
-        return "http://127.0.0.1:3000/api"
+        return "http://127.0.0.1:3000/api/v1"
         #endif
     }
 

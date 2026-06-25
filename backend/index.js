@@ -6,6 +6,7 @@ const { body, validationResult } = require("express-validator")
 const winston = require("winston")
 
 const app = express()
+const DEFAULT_PORT = 3000
 
 // Security middleware
 app.use(
@@ -24,7 +25,10 @@ app.use(
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:3000"],
+    origin:
+      process.env.ALLOWED_ORIGINS?.split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean) || ["http://localhost:3000"],
     credentials: true,
     optionsSuccessStatus: 200,
   }),
@@ -81,16 +85,18 @@ const validateChatInput = [
 ]
 
 // Health check endpoint
-app.get("/api/v1/health", (req, res) => {
+function handleHealthCheck(req, res) {
   res.json({
     status: "healthy",
     timestamp: new Date().toISOString(),
     version: "4.2.0",
   })
-})
+}
+
+app.get(["/api/v1/health", "/api/health"], handleHealthCheck)
 
 // Chat endpoint
-app.post("/api/v1/chat", validateChatInput, async (req, res) => {
+async function handleChat(req, res) {
   try {
     // Check validation results
     const errors = validationResult(req)
@@ -128,7 +134,9 @@ app.post("/api/v1/chat", validateChatInput, async (req, res) => {
       message: "An error occurred while processing your request.",
     })
   }
-})
+}
+
+app.post(["/api/v1/chat", "/api/chat"], validateChatInput, handleChat)
 
 // Message processing function
 async function processMessage(message) {
@@ -181,12 +189,13 @@ app.use("*", (req, res) => {
   })
 })
 
-const PORT = process.env.PORT || 8080
+const PORT = Number(process.env.PORT) || DEFAULT_PORT
 
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`)
-  console.log(`🚀 DevAssist API server running on port ${PORT}`)
-})
+if (require.main === module) {
+  app.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`)
+    console.log(`🚀 DevAssist API server running on port ${PORT}`)
+  })
+}
 
 module.exports = app
-
