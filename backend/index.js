@@ -172,7 +172,7 @@ async function processMessage(message) {
 }
 
 // Error handling middleware
-app.use((error, req, res, next) => {
+app.use((error, req, res, _next) => {
   logger.error("Unhandled error", { error: error.message, stack: error.stack })
 
   res.status(500).json({

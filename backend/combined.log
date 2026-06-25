@@ -1,0 +1,2 @@
+{"deviceId":"present","level":"info","message":"Chat request received","messageLength":5,"service":"devassist-api","timestamp":1782386602947}
+{"level":"info","message":"Chat response sent successfully","service":"devassist-api","timestamp":"2026-06-25T11:23:22.967Z"}
