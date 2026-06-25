@@ -1,19 +1,21 @@
 import Foundation
 
 struct ChatRequest: Codable {
-    let prompt: String
+    let message: String
+    let context: [ChatTurn]
+}
+
+struct ChatTurn: Codable {
+    let role: String
+    let content: String
 }
 
 struct ChatResponse: Codable {
     let response: String
-    let timestamp: String?
 }
 
 class APIClient {
-    // Update this URL with your actual backend endpoint
-    // For Google Cloud Functions: https://YOUR_REGION-YOUR_PROJECT.cloudfunctions.net/chatbot/chat
-    // For local development: http://localhost:8080/chat
-    private static let baseURL = "https://us-central1-your-project.cloudfunctions.net/chatbot"
+    private static let baseURL = "http://127.0.0.1:3000/api"
     
     static func sendMessage(prompt: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/chat") else {
@@ -26,7 +28,7 @@ class APIClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 30.0
         
-        let chatRequest = ChatRequest(prompt: prompt)
+        let chatRequest = ChatRequest(message: prompt, context: [])
         
         do {
             let jsonData = try JSONEncoder().encode(chatRequest)

@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { v4 as uuidv4 } from "uuid"
 
 // In-memory session store (in production, use a database)
 const sessions = new Map<
@@ -16,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     const { title = "DevAssist Session" } = await request.json()
 
-    const sessionId = uuidv4()
+    const sessionId = crypto.randomUUID()
     const session = {
       id: sessionId,
       title,

@@ -14,15 +14,7 @@ struct ContentView: View {
 
     @State private var currentPrompt: String = ""
 
-    let player = AVPlayer(url:
-
-      URL(string:
-
-        "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-
-      )!
-
-    )
+    let player = AVPlayer()
 
 
 

@@ -1,6 +1,6 @@
 # DevAssist 4.2.0 - Professional iOS Development Assistant
 
-A secure, production-ready iOS application that combines video streaming with AI-powered chat functionality, built following Apple and Google guidelines.
+A secure, production-ready iOS application that combines video streaming with local-only chat functionality.
 
 ## 🔒 Security Features
 
@@ -28,7 +28,7 @@ A secure, production-ready iOS application that combines video streaming with AI
 ## 📱 Features
 
 - **Video Streaming**: AVKit integration with proper audio session management
-- **AI Chat Interface**: Secure chat with backend API
+- **Local Chat Interface**: Secure chat with local backend API
 - **Real-time Status**: Network and API health monitoring
 - **Settings Management**: Secure configuration and privacy controls
 - **Privacy Compliance**: Full privacy policy and data protection
@@ -39,7 +39,6 @@ A secure, production-ready iOS application that combines video streaming with AI
 - Xcode 15.0+
 - iOS 15.0+
 - Node.js 18.0+
-- Google Cloud account (for backend deployment)
 
 ### iOS Setup
 1. Open `DevAssist4-2-0.xcodeproj` in Xcode
@@ -59,7 +58,7 @@ A secure, production-ready iOS application that combines video streaming with AI
 
 ### Deployment
 1. **iOS**: Use Xcode's archive and upload to App Store Connect
-2. **Backend**: Deploy to Google Cloud Functions using GitHub Actions
+2. **Backend**: Run locally with Node.js or Docker
 
 ## 🔐 Security Configuration
 
@@ -116,7 +115,7 @@ npm run security-audit
 - ✅ No hardcoded credentials
 - ✅ Accessibility support
 
-### Google Cloud Platform
+### Local-only Runtime
 - ✅ Secure API endpoints
 - ✅ Rate limiting implemented
 - ✅ Proper error handling
@@ -151,5 +150,4 @@ For support and questions:
 
 ---
 
-**Note**: This application follows all Apple App Store and Google Cloud Platform guidelines for security, privacy, and best practices.
-
+**Note**: This application follows Apple App Store guidance and keeps all runtime behavior local.

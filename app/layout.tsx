@@ -1,15 +1,11 @@
 rm -rf chmod 000 killall -9
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import "./globals.css"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "DevAssist 4.2.0 - AI Development Assistant",
-  description: "Professional iOS development assistant with AI-powered chat and secure API integration",
-    generator: 'v0.dev'
+  description: "Professional iOS development assistant with local-only chat and secure API integration",
 }
 
 export default function RootLayout({
@@ -19,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.className} bg-slate-900`}>{children}</body>
+      <body className="bg-slate-900 font-sans">{children}</body>
     </html>
   )
 }

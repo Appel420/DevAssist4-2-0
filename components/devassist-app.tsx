@@ -27,7 +27,7 @@ export function DevAssistApp() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      text: "🚀 Hello! I'm DevAssist 4.2.0, your AI-powered iOS development assistant.\n\nI can help you with:\n• Swift & SwiftUI development\n• iOS architecture & best practices\n• Debugging & optimization\n• App Store guidelines\n• Security implementation\n\nWhat would you like to work on today?",
+      text: "🚀 Hello! I'm DevAssist 4.2.0, your local iOS development assistant.\n\nI can help you with:\n• Swift & SwiftUI development\n• iOS architecture & best practices\n• Debugging & optimization\n• App Store guidelines\n• Security implementation\n\nWhat would you like to work on today?",
       isUser: false,
       timestamp: new Date(),
       type: "text",
@@ -297,7 +297,7 @@ export function DevAssistApp() {
               variant={apiHealth === "healthy" ? "default" : "destructive"}
               className={`text-xs ${apiHealth === "healthy" ? "bg-green-600" : apiHealth === "unhealthy" ? "bg-red-600" : "bg-yellow-600"}`}
             >
-              AI {apiHealth}
+              Local {apiHealth}
             </Badge>
           </div>
 
@@ -350,7 +350,7 @@ export function DevAssistApp() {
           <div className="absolute top-4 left-4">
             <Badge className="bg-green-600/80 text-white flex items-center space-x-1">
               <Zap className="w-3 h-3" />
-              <span>AI Powered</span>
+              <span>Local Powered</span>
             </Badge>
           </div>
 
@@ -453,7 +453,7 @@ export function DevAssistApp() {
                           style={{ animationDelay: "0.2s" }}
                         />
                       </div>
-                      <span className="text-xs text-gray-400">AI thinking...</span>
+                      <span className="text-xs text-gray-400">Local engine thinking...</span>
                     </div>
                   </div>
                 </div>
@@ -511,7 +511,7 @@ export function DevAssistApp() {
               <div className="space-y-2">
                 <label className="text-sm text-gray-300">API Status</label>
                 <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                  <span className="text-sm text-gray-300">OpenAI Connection</span>
+                  <span className="text-sm text-gray-300">Local Engine</span>
                   <Badge
                     variant={apiHealth === "healthy" ? "default" : "destructive"}
                     className={apiHealth === "healthy" ? "bg-green-600" : "bg-red-600"}

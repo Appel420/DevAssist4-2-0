@@ -1,38 +1,39 @@
 import { config } from "./config"
 
-// Guard against build-time crashes
-if (!process.env.OPENAI_API_KEY) {
-  process.env.OPENAI_API_KEY = "DUMMY_KEY_FOR_BUILD_ONLY"
+type ChatTurn = {
+  role: "user" | "assistant"
+  content: string
 }
 
 class AIService {
-  private _openai: any
+  async generateResponse(message: string, context: ChatTurn[] = []) {
+    const cleanMessage = message.trim()
+    const lowerMessage = cleanMessage.toLowerCase()
+    const recentContext = context.slice(-config.chat.maxHistory)
+    const hasCodeContext = recentContext.some((turn) => turn.content.includes("```") || turn.content.includes("func "))
 
-  private async getClient() {
-    if (this._openai) return this._openai
-    const { default: OpenAI } = await import("openai")
-    this._openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
-    return this._openai
-  }
-
-  async generateResponse(message: string, context: string[] = []) {
-    const client = await this.getClient()
-
-    if (process.env.OPENAI_API_KEY === "DUMMY_KEY_FOR_BUILD_ONLY") {
-      return "🛠 Build-time stub response"
+    if (!cleanMessage) {
+      return "Please enter a message and I will respond locally."
     }
 
-    const completion = await client.chat.completions.create({
-      model: config.openai.model,
-      messages: [
-        { role: "system", content: "You are DevAssist 4.2.0 ..." },
-        ...context.map((c) => ({ role: "assistant", content: c })),
-        { role: "user", content: message },
-      ],
-      max_tokens: config.openai.maxTokens,
-    })
+    if (lowerMessage.includes("swiftui") || lowerMessage.includes("swift")) {
+      return [
+        "Local Swift guidance:",
+        "• Keep views small and composable.",
+        "• Push business logic into view models.",
+        "• Prefer system frameworks and local data stores.",
+      ].join("\n")
+    }
 
-    return completion.choices[0]?.message?.content ?? "No answer."
+    if (lowerMessage.includes("test") || lowerMessage.includes("debug")) {
+      return "Local debugging tip: reproduce the issue, reduce it to a small case, and verify the result with focused tests."
+    }
+
+    if (lowerMessage.includes("code") || hasCodeContext) {
+      return `Here is a local-only example you can adapt:\n\n\`\`\`swift\nimport SwiftUI\n\nstruct ExampleView: View {\n    var body: some View {\n        Text(\"Local-only mode\")\n    }\n}\n\`\`\``
+    }
+
+    return `Local-only response: ${cleanMessage}\n\nI can help with Swift, SwiftUI, architecture, testing, and debugging without any external services.`
   }
 }
 

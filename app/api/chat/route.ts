@@ -1,9 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-
-// Guard against build-time crashes
-if (!process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY) {
-  process.env.OPENAI_API_KEY = "DUMMY_KEY_FOR_BUILD_ONLY"
-}
+import { aiService } from "@/lib/ai-service"
 
 // Rate limiting store
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>()
@@ -67,7 +63,7 @@ export async function POST(request: NextRequest) {
 - App Store guidelines and submission process
 - Security best practices for iOS apps
 - Performance optimization
-- Core Data, CloudKit, and data persistence
+- Core Data and local data persistence
 - Networking and API integration
 - Testing (Unit tests, UI tests)
 
@@ -82,54 +78,16 @@ Format code blocks with proper syntax highlighting using triple backticks and la
 
     const messages = [
       { role: "system" as const, content: systemPrompt },
-      ...context.slice(-10), // Last 10 messages for context
+      ...context.slice(-10),
       { role: "user" as const, content: sanitizedMessage },
     ]
 
-    let response: string
-
-    // Try Gemini FIRST - this is the primary AI service
-    if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== "DUMMY_KEY_FOR_BUILD_ONLY") {
-      try {
-        const { GoogleGenerativeAI } = await import("@google/generative-ai")
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" })
-
-        // Convert messages to Gemini format
-        const conversationHistory = messages
-          .slice(1)
-          .map((m) => `${m.role === "user" ? "Human" : "Assistant"}: ${m.content}`)
-          .join("\n\n")
-
-        const prompt = `${systemPrompt}\n\nConversation History:\n${conversationHistory}\n\nHuman: ${sanitizedMessage}\n\nAssistant:`
-
-        const result = await model.generateContent(prompt)
-        response = result.response.text()
-
-        console.log("✅ Gemini API successful")
-      } catch (geminiError) {
-        console.error("❌ Gemini API failed:", geminiError)
-
-        // Only fallback to OpenAI if Gemini fails
-        if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "DUMMY_KEY_FOR_BUILD_ONLY") {
-          console.log("🔄 Falling back to OpenAI...")
-          response = await callOpenAI(messages)
-        } else {
-          throw new Error("Both Gemini and OpenAI are unavailable")
-        }
-      }
-    } else if (process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== "DUMMY_KEY_FOR_BUILD_ONLY") {
-      // Use OpenAI only if Gemini is not available
-      console.log("🔄 Using OpenAI (Gemini not configured)")
-      response = await callOpenAI(messages)
-    } else {
-      throw new Error("No AI service configured - please set GEMINI_API_KEY or OPENAI_API_KEY")
-    }
+    const response = await aiService.generateResponse(sanitizedMessage, messages.slice(1))
 
     return NextResponse.json({
       response,
       timestamp: new Date().toISOString(),
-      provider: process.env.GEMINI_API_KEY ? "gemini-primary" : "openai-fallback",
+      provider: "local",
       authenticated: true,
       developerMode: true,
     })
@@ -144,26 +102,4 @@ Format code blocks with proper syntax highlighting using triple backticks and la
       { status: 500 },
     )
   }
-}
-
-async function callOpenAI(messages: any[]): Promise<string> {
-  if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === "DUMMY_KEY_FOR_BUILD_ONLY") {
-    return "🛠 Build-time stub response - please configure OPENAI_API_KEY or GEMINI_API_KEY"
-  }
-
-  const { default: OpenAI } = await import("openai")
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  })
-
-  const completion = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || "gpt-4o",
-    messages,
-    max_tokens: 1500,
-    temperature: 0.7,
-    presence_penalty: 0.1,
-    frequency_penalty: 0.1,
-  })
-
-  return completion.choices[0]?.message?.content || "No response generated"
 }

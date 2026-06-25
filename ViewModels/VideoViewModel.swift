@@ -16,22 +16,8 @@ class VideoViewModel: ObservableObject {
     
     private func setupVideoPlayer() async {
         do {
-            // Use secure, Apple-approved video URL
-            guard let url = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") else {
-                throw VideoError.invalidURL
-            }
-            
-            // Create player with proper configuration
-            let player = AVPlayer(url: url)
-            
-            // Configure for background audio (Apple guideline compliance)
-            player.allowsExternalPlayback = true
-            player.usesExternalPlaybackWhileExternalScreenIsActive = true
-            
-            self.player = player
-            
-            logger.info("Video player initialized successfully")
-            
+            self.player = AVPlayer()
+            logger.info("Video player initialized locally")
         } catch {
             logger.error("Video player setup failed: \(error.localizedDescription)")
             self.error = error as? VideoError ?? .unknown
