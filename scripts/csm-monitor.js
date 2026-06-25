@@ -62,6 +62,13 @@ function check(url) {
 async function main() {
   const intervalMs = Number(process.env.CSM_INTERVAL_MS || 60000)
   console.log("[CSM] local monitor started")
+  const healthTarget =
+    process.env.CSM_HEALTH_URL ||
+    process.env.DEVASSIST_API_BASE_URL ||
+    (process.env.PORT || process.env.BRIDGE_PORT
+      ? `http://127.0.0.1:${process.env.PORT || process.env.BRIDGE_PORT}/api/v1/health`
+      : "http://127.0.0.1/api/v1/health")
+  const healthURL = /\/health$/.test(healthTarget) ? healthTarget : `${healthTarget.replace(/\/$/, "")}/health`
 
   const tick = async () => {
     const findings = scan()
@@ -72,7 +79,7 @@ async function main() {
       console.log("[CSM] reference scan clean")
     }
 
-    const healthy = await check(process.env.CSM_HEALTH_URL || "http://127.0.0.1:3000/api/v1/health")
+    const healthy = await check(healthURL)
     console.log(healthy ? "[CSM] health ok" : "[CSM] health offline")
   }
 

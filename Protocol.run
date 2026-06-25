@@ -110,7 +110,7 @@ GitHub Submission Steps
 	5	Scan file: python -m src.python.core.AISystemValidator scan_file test.py
 	6	
 	7	View logs: python src/python/web/app.py
-	8	curl http://localhost:5000/logs
+	8	curl $LOGS_URL
 	9	
 	72	📊 Metrics
 	◦	Threat Detection: Tracks compliance, threat scans, and neutral actions.
@@ -207,7 +207,7 @@ GitHub Submission Steps
 	◦	python -m src.python.core.AISystemValidator run_compliance_check --input "test input"
 	◦	python -m src.python.core.AISystemValidator run_compliance_check --input "malware"
 	◦	python -m src.python.core.AISystemValidator scan_file nonexistent.txt
-	◦	python src/python/web/app.py & curl http://localhost:5000/logs
+	◦	python src/python/web/app.py & curl $LOGS_URL
 	◦	
 	◦	Verify logs (logs/audit.log.jsonl) include hash and signature.
 	◦	Merge after review: git checkout Global-solutions

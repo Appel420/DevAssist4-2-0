@@ -488,7 +488,7 @@ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 /* ══════════════════════════════════════════════════════════════════
    SOVEREIGN PORT DISCOVERY — runs before everything else
    Sets window._SGH_BASE (http) and window._SGH_WS (ws) globally.
-   No hardcoded IPs or ports. Works on any device, any network.
+   Uses same-origin first, then cached bridge host/port, with no fixed fallback ports.
 
    Resolution order:
    1. ?bridge=host:port  URL param   (explicit override)
@@ -505,18 +505,16 @@ var _origin = location.origin;
 window._SGH_BASE = _origin;
 window._SGH_WS   = _origin.replace(/^http/, 'ws');
 window._SGH_HOST = location.host;
-window._SGH_PORT = location.port || '9898';
+window._SGH_PORT = location.port || localStorage.getItem('sg_bridge_port') || '';
 
-/* Common bridge ports to probe (if same-origin probe fails) */
-var PROBE_PORTS = [9898, 9897, 8080, 3000, 5000, 9000];
-
-/* URL param override: ?bridge=192.168.1.100:9898 */
+/* URL param override: ?bridge=host:port */
 var _param = new URLSearchParams(location.search).get('bridge');
 if (_param && _param.indexOf(':') > 0) {
   var _h = location.protocol + '//' + _param;
   window._SGH_BASE = _h;
   window._SGH_WS   = _h.replace(/^http/, 'ws');
   window._SGH_HOST = _param;
+  localStorage.setItem('sg_bridge_port', _param.split(':').pop());
   localStorage.setItem('sg_bridge_ip', _param);
   console.log('[Discovery] URL param override:', _param);
   return;
@@ -555,6 +553,7 @@ if (_stored && _stored.indexOf(':') > 0) {
     } else {
       /* Stored value is dead — clear and re-discover */
       localStorage.removeItem('sg_bridge_ip');
+      _stored = '';
       _discover();
     }
   });
@@ -567,6 +566,7 @@ probe(location.origin, function(ok){
     window._SGH_BASE = location.origin;
     window._SGH_WS   = location.origin.replace(/^http/,'ws');
     localStorage.setItem('sg_bridge_ip', location.host);
+    localStorage.setItem('sg_bridge_port', location.port || '');
     console.log('[Discovery] Same-origin connected:', location.host);
     _notifyReady(location.host, true);
   } else {
@@ -574,12 +574,13 @@ probe(location.origin, function(ok){
   }
 });
 
-/* Multi-port parallel probe — tries all PROBE_PORTS simultaneously */
+/* Discovery probe — same-origin first, then cached host/port */
 function _discover(){
   var hostname = location.hostname;
-  var candidates = PROBE_PORTS.map(function(p){ return hostname + ':' + p; });
-  /* Also try localhost variants */
-  if(hostname !== 'localhost') candidates.push('localhost:9898','localhost:9897');
+  var candidates = [];
+  if (_stored && _validBridgeHost(_stored)) candidates.push(_stored);
+  if (location.host && _validBridgeHost(location.host)) candidates.push(location.host);
+  if (hostname && location.port) candidates.push(hostname + ':' + location.port);
 
   var found  = false;
   var done_n = 0;
@@ -804,7 +805,7 @@ if(location.protocol==='file:'){
 
  window._sgWsPatch = { active: false, fileOrigin: _isFileOrigin };
  console.log(
-   '%c[SG_WS] Native WebSocket retained' + (_isFileOrigin ? ' — file:// origin: open via HTTP on :9898' : ' — HTTP origin: ws:// allowed'),
+   '%c[SG_WS] Native WebSocket retained' + (_isFileOrigin ? ' — file:// origin: open via the discovered bridge URL' : ' — HTTP origin: ws:// allowed'),
    'color:#00ffc8;font-size:9px'
  );
 })();
@@ -824,7 +825,7 @@ var _timer     = null;
 function setConnected(yes, msg) {
 _connected = yes;
 if (bar) bar.style.background = yes ? 'var(--acid,#00ffc8)' : '#ff3d6e';
-if (txt) txt.textContent = msg || (yes ? '⚡ Bridge LIVE — Port 9897' : '⚠ Bridge offline — start bridge.py');
+if (txt) txt.textContent = msg || (yes ? '⚡ Bridge LIVE — Port ' + (window._SGH_PORT || 'auto') : '⚠ Bridge offline — start bridge.py');
 /* Update all status elements in the DOM */
 document.querySelectorAll('[id="bridgeStatus"],[id="ftBridge"]').forEach(function(el){
 el.textContent = yes ? 'BRIDGE LIVE' : 'OFFLINE';
@@ -872,7 +873,7 @@ _timer = setTimeout(tryAll, delay);
 
 /* Hook events */
 document.addEventListener('sg:bridgeConnected', function(ev){
-setConnected(true, '⚡ Bridge LIVE — ' + ((ev.detail && ev.detail.url) || 'Port 9897'));
+setConnected(true, '⚡ Bridge LIVE — ' + ((ev.detail && ev.detail.url) || ('Port ' + (window._SGH_PORT || 'auto'))));
 _retries = 0;
 if (_timer) { clearTimeout(_timer); _timer = null; }
 /* Restart keepalive ping every 20s */
@@ -2547,16 +2548,12 @@ try {
 // ─── 1. PORT CONFIGURATION — user-configurable bridge connection ────
 var BridgeCFG = {
   protocol: 'ws',       // ws or wss
-  host:     'localhost', // Safari fix: use IPv4 literal, not 'localhost'
-  port:     9897,
+  host:     window._SGH_HOST || location.host || '',
+  port:     Number(window._SGH_PORT || 0) || 0,
   path:     '',
-  // AirPlay / Bonjour friendly alternate ports
   presets: {
-    local:    { host:'localhost',    port:9897 }, // Python WS internal — primary
-    lan:      { host:'192.168.1.1',  port:9897 },  // user fills in
-    airplay:  { host:'localhost',    port:7000 },   // AirPlay bridge
-    tailscale:{ host:'100.x.x.x',   port:9897 },   // Tailscale mesh
-    custom:   { host:'',             port:0    }
+    current:  { host: window._SGH_HOST || location.host || '', port: Number(window._SGH_PORT || 0) || 0 },
+    custom:   { host:'', port:0 }
   },
   wsURL: function() {
     /* Python WS internal — loopback never uses wss:// */
@@ -2575,10 +2572,10 @@ var BridgeCFG = {
       var s = localStorage.getItem('bridge_cfg');
       if (s) {
         var p = JSON.parse(s);
-        // Force ws:// — wss:// requires TLS cert on server; localhost bridge uses ws://
+        // Force ws:// — wss:// requires TLS cert on server.
         BridgeCFG.protocol = 'ws';
-        BridgeCFG.host = p.host || 'localhost';
-        BridgeCFG.port = p.port || 9897;
+        BridgeCFG.host = p.host || window._SGH_HOST || location.host || '';
+        BridgeCFG.port = p.port || Number(window._SGH_PORT || 0) || 0;
         BridgeCFG.path = p.path || '';
         // Persist the corrected protocol so next load is clean
         if (p.protocol === 'wss') {
@@ -2591,7 +2588,7 @@ var BridgeCFG = {
 };
 BridgeCFG.load();
 
-// Force-connect immediately — SuperGrok requires port 9897 live
+// Force-connect immediately when a bridge is available
 (function _forceConnect(){
   function _tryConnect(){
     if(typeof PiperTTS !== 'undefined' && typeof PiperTTS.connect === 'function'){

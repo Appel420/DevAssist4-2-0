@@ -6,7 +6,8 @@ const { body, validationResult } = require("express-validator")
 const winston = require("winston")
 
 const app = express()
-const DEFAULT_PORT = 3000
+const HOST = process.env.HOST || "127.0.0.1"
+const PORT = Number(process.env.PORT || process.env.BRIDGE_PORT) || 0
 
 // Security middleware
 app.use(
@@ -28,7 +29,7 @@ app.use(
     origin:
       process.env.ALLOWED_ORIGINS?.split(",")
         .map((origin) => origin.trim())
-        .filter(Boolean) || ["http://localhost:3000"],
+        .filter(Boolean) || true,
     credentials: true,
     optionsSuccessStatus: 200,
   }),
@@ -189,12 +190,12 @@ app.use("*", (req, res) => {
   })
 })
 
-const PORT = Number(process.env.PORT) || DEFAULT_PORT
-
 if (require.main === module) {
-  app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`)
-    console.log(`🚀 DevAssist API server running on port ${PORT}`)
+  const server = app.listen(PORT, HOST, () => {
+    const address = server.address()
+    const actualPort = typeof address === "object" && address ? address.port : PORT
+    logger.info(`Server running on ${HOST}:${actualPort}`)
+    console.log(`🚀 DevAssist API server running on ${HOST}:${actualPort}`)
   })
 }
 
