@@ -1,4 +1,3 @@
-rm -rf
 const { DataProcessor } = require("./data-processor")
 
 class EnhancedChatBot {

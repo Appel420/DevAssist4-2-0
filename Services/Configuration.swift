@@ -8,15 +8,13 @@ class Configuration {
     // MARK: - API Configuration
     var apiBaseURL: String {
         #if DEBUG
-        return "https://your-dev-api.com/api/v1"
+        return "http://127.0.0.1:3000/api"
         #else
-        return "https://your-prod-api.com/api/v1"
+        return "http://127.0.0.1:3000/api"
         #endif
     }
-    
-    var googleCloudProjectId: String {
-        return Bundle.main.object(forInfoDictionaryKey: "GOOGLE_CLOUD_PROJECT_ID") as? String ?? ""
-    }
+
+    var localOnlyMode: Bool { true }
     
     var appleAppId: String {
         return Bundle.main.object(forInfoDictionaryKey: "APPLE_APP_ID") as? String ?? ""
@@ -27,7 +25,7 @@ class Configuration {
         #if DEBUG
         return false
         #else
-        return true
+        return false
         #endif
     }
     
@@ -35,7 +33,7 @@ class Configuration {
         #if DEBUG
         return false
         #else
-        return true
+        return false
         #endif
     }
 }

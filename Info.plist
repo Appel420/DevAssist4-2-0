@@ -44,14 +44,19 @@
         <false/>
         <key>NSExceptionDomains</key>
         <dict>
-            <key>your-api-domain.com</key>
+            <key>localhost</key>
             <dict>
-                <key>NSExceptionRequiresForwardSecrecy</key>
-                <false/>
-                <key>NSExceptionMinimumTLSVersion</key>
-                <string>TLSv1.2</string>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
                 <key>NSIncludesSubdomains</key>
                 <true/>
+            </dict>
+            <key>127.0.0.1</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <true/>
+                <key>NSIncludesSubdomains</key>
+                <false/>
             </dict>
         </dict>
     </dict>
@@ -87,9 +92,6 @@
     <false/>
     
     <!-- Configuration Keys (for environment variables) -->
-    <key>GOOGLE_CLOUD_PROJECT_ID</key>
-    <string>$(GOOGLE_CLOUD_PROJECT_ID)</string>
-    
     <key>APPLE_APP_ID</key>
     <string>$(APPLE_APP_ID)</string>
     
@@ -113,4 +115,3 @@
     </dict>
 </dict>
 </plist>
-

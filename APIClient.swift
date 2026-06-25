@@ -1,8 +1,21 @@
 import Foundation
 
 struct APIClient {
-    // Replace with your actual backend URL
-    private static let baseURL = "https://your-backend-url.com"
+    private static let baseURL = "http://127.0.0.1:3000/api"
+
+    private struct ChatRequest: Codable {
+        let message: String
+        let context: [ChatTurn]
+    }
+
+    private struct ChatTurn: Codable {
+        let role: String
+        let content: String
+    }
+
+    private struct ChatResponse: Codable {
+        let response: String
+    }
     
     static func sendMessage(prompt: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/chat") else {
@@ -15,10 +28,10 @@ struct APIClient {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 30.0
         
-        let requestBody = ["prompt": prompt]
+        let requestBody = ChatRequest(message: prompt, context: [])
         
         do {
-            let jsonData = try JSONSerialization.data(withJSONObject: requestBody)
+            let jsonData = try JSONEncoder().encode(requestBody)
             request.httpBody = jsonData
         } catch {
             completion(.failure(error))
@@ -48,12 +61,8 @@ struct APIClient {
                 }
                 
                 do {
-                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                       let response = json["response"] as? String {
-                        completion(.success(response))
-                    } else {
-                        completion(.failure(APIError.invalidResponseFormat))
-                    }
+                    let response = try JSONDecoder().decode(ChatResponse.self, from: data)
+                    completion(.success(response.response))
                 } catch {
                     completion(.failure(error))
                 }
@@ -111,4 +120,3 @@ enum APIError: LocalizedError {
         }
     }
 }
-
