@@ -20,7 +20,7 @@ const banned = [
   /meta\.com/i,
 ]
 
-const ignore = new Set(["node_modules", ".git", ".next", "dist", "build", "coverage"])
+const ignore = new Set(["node_modules", ".git", "dist", "build", "coverage"])
 
 function walk(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
