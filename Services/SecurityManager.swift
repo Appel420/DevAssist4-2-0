@@ -43,7 +43,12 @@ class SecurityManager {
     
     func validateURL(_ urlString: String) -> Bool {
         guard let url = URL(string: urlString) else { return false }
-        return url.scheme == "https" // Only allow HTTPS
+        if url.scheme == "https" {
+            return true
+        }
+
+        let localHosts = ["localhost", "127.0.0.1", "::1"]
+        return url.scheme == "http" && localHosts.contains(url.host ?? "")
     }
     
     // MARK: - Encryption Helpers

@@ -7,11 +7,17 @@ class Configuration {
     
     // MARK: - API Configuration
     var apiBaseURL: String {
-        #if DEBUG
-        return "http://127.0.0.1:3000/api"
-        #else
-        return "http://127.0.0.1:3000/api"
-        #endif
+        if let override = ProcessInfo.processInfo.environment["DEVASSIST_API_BASE_URL"],
+           !override.isEmpty {
+            return override
+        }
+
+        if let plistValue = Bundle.main.object(forInfoDictionaryKey: "DEVASSIST_API_BASE_URL") as? String,
+           !plistValue.isEmpty {
+            return plistValue
+        }
+
+        return ""
     }
 
     var localOnlyMode: Bool { true }

@@ -6,6 +6,8 @@ const { body, validationResult } = require("express-validator")
 const winston = require("winston")
 
 const app = express()
+const HOST = process.env.HOST || "127.0.0.1"
+const PORT = Number(process.env.PORT || process.env.BRIDGE_PORT) || 0
 
 // Security middleware
 app.use(
@@ -24,7 +26,10 @@ app.use(
 // CORS configuration
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(",") || ["http://localhost:3000"],
+    origin:
+      process.env.ALLOWED_ORIGINS?.split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean) || true,
     credentials: true,
     optionsSuccessStatus: 200,
   }),
@@ -81,16 +86,18 @@ const validateChatInput = [
 ]
 
 // Health check endpoint
-app.get("/api/v1/health", (req, res) => {
+function handleHealthCheck(req, res) {
   res.json({
     status: "healthy",
     timestamp: new Date().toISOString(),
     version: "4.2.0",
   })
-})
+}
+
+app.get(["/api/v1/health", "/api/health"], handleHealthCheck)
 
 // Chat endpoint
-app.post("/api/v1/chat", validateChatInput, async (req, res) => {
+async function handleChat(req, res) {
   try {
     // Check validation results
     const errors = validationResult(req)
@@ -128,7 +135,9 @@ app.post("/api/v1/chat", validateChatInput, async (req, res) => {
       message: "An error occurred while processing your request.",
     })
   }
-})
+}
+
+app.post(["/api/v1/chat", "/api/chat"], validateChatInput, handleChat)
 
 // Message processing function
 async function processMessage(message) {
@@ -164,7 +173,7 @@ async function processMessage(message) {
 }
 
 // Error handling middleware
-app.use((error, req, res, next) => {
+app.use((error, req, res, _next) => {
   logger.error("Unhandled error", { error: error.message, stack: error.stack })
 
   res.status(500).json({
@@ -181,12 +190,13 @@ app.use("*", (req, res) => {
   })
 })
 
-const PORT = process.env.PORT || 8080
-
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`)
-  console.log(`🚀 DevAssist API server running on port ${PORT}`)
-})
+if (require.main === module) {
+  const server = app.listen(PORT, HOST, () => {
+    const address = server.address()
+    const actualPort = typeof address === "object" && address ? address.port : PORT
+    logger.info(`Server running on ${HOST}:${actualPort}`)
+    console.log(`🚀 DevAssist API server running on ${HOST}:${actualPort}`)
+  })
+}
 
 module.exports = app
-

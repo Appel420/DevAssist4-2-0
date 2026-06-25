@@ -4,11 +4,12 @@ services:
   devassist-backend:
     build: .
     ports:
-      - "0000:0.0.0.0"
+      - "${DEVASSIST_PORT}:${DEVASSIST_PORT}"
     environment:
       - NODE_ENV=development
-      - PORT=0.0.0.0
+      - HOST=127.0.0.1
+      - PORT=${DEVASSIST_PORT}
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run dev
+    command: npm start

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Sovereignty One Brain v2.3 — Port 9898
+Sovereignty One Brain v2.3 — dynamic bridge port
 Serves SGHv119.html AND all API endpoints on ONE port.
 Same-origin = ATS never blocks dashboard → API calls.
 
@@ -9,7 +9,7 @@ Usage in iSH:
   export OPENAI_API_KEY="sk-..."
   export XAI_API_KEY="xai-..."
   python3 bridge.py
-  Open: http://192.168.1.252:9898/
+  Open the printed bridge URL after launch.
 """
 
 import hashlib, json, os, secrets, signal, socket, subprocess, sys, time
@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Dict, List, Optional
 
-PORT  = int(os.environ.get('BRIDGE_PORT', 9898))
+PORT  = int(os.environ.get('BRIDGE_PORT') or os.environ.get('PORT') or 0)
 def _get_host():
     import socket as _s
     try:
@@ -165,7 +165,7 @@ def _sha(s): return hashlib.sha512(s.encode()).hexdigest()
 def scarlog(event, data, severity='INFO'):
     global _root
     entry = {'ts': datetime.now(timezone.utc).isoformat(), 'type': event,
-             'severity': severity, 'data': data, 'node': 'SGH-9898'}
+             'severity': severity, 'data': data, 'node': f'SGH-{PORT or "auto"}'}
     SCAR.append(entry)
     if len(SCAR) > 5000: SCAR.pop(0)
     # Merkle chain
@@ -461,7 +461,7 @@ class BrainHandler(BaseHTTPRequestHandler):
                 'deps':                 _CRYPTO_STATUS.get('engine','hmac-fallback'),
                 'merkle_root':          _root,
                 'ed25519_pub':          _b64.b64encode(ed_pub).decode()[:32],
-                'recommendedPorts':     {'rotationAndCrypto':9899,'brainHydration':9898,'orchestration':9897}
+                'recommendedPorts':     {'bridge': PORT}
             })
 
         elif p == '/api/quadratchet/rotate':
@@ -530,8 +530,9 @@ class SovereignServer(ThreadingHTTPServer):
         super().server_bind()
 
 if __name__ == '__main__':
-    scarlog('boot',{'port':PORT,'host':HOST,'pqc':PQC,'version':'2.3+same-origin'})
     server = SovereignServer((HOST, PORT), BrainHandler)
+    PORT = server.server_address[1]
+    scarlog('boot',{'port':PORT,'host':HOST,'pqc':PQC,'version':'2.3+same-origin'})
 
     def _stop(sig, frame):
         server.shutdown()

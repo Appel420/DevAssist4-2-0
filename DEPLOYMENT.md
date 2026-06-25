@@ -7,13 +7,13 @@ Run the backend locally:
 ```bash
 cd backend
 npm install
-npm run dev
+npm start
 ```
 
 ## iOS App
 
 1. Open the Xcode project.
-2. Point the API client at `http://127.0.0.1:3000/api`.
+2. Point the API client at the helper-discovered `DEVASSIST_API_BASE_URL`.
 3. Build and run locally.
 
 ## Notes

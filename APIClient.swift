@@ -4,7 +4,9 @@ import FoundationNetworking
 #endif
 
 struct APIClient {
-    private static let baseURL = "http://127.0.0.1:3000/api"
+    private static var baseURL: String {
+        Configuration.shared.apiBaseURL
+    }
 
     private struct ChatRequest: Codable {
         let message: String
