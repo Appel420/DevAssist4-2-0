@@ -4,7 +4,7 @@ const fs = require("fs")
 const path = require("path")
 const http = require("http")
 
-const root = path.resolve(__dirname, "..")
+const root = path.resolve(__dirname, "../..")
 const banned = [
   /google/i,
   /firebase/i,

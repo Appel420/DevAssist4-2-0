@@ -12,3 +12,5 @@
 {"level":"info","message":"Chat response sent successfully","service":"devassist-api","timestamp":"2026-07-06T16:03:09.687Z"}
 {"deviceId":"present","level":"info","maxTokens":2048,"message":"Chat request received","messageLength":5,"modelId":"local-text","runtimeMode":"offline","service":"devassist-api","timestamp":1783353913262}
 {"level":"info","message":"Chat response sent successfully","service":"devassist-api","timestamp":"2026-07-06T16:05:13.281Z"}
+{"deviceId":"present","level":"info","maxTokens":2048,"message":"Chat request received","messageLength":5,"modelId":"local-text","runtimeMode":"offline","service":"devassist-api","timestamp":1783355606617}
+{"level":"info","message":"Chat response sent successfully","service":"devassist-api","timestamp":"2026-07-06T16:33:26.637Z"}

@@ -11,6 +11,17 @@
 		1A2B3C4D5E6F7892 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F7893 /* ContentView.swift */; };
 		1A2B3C4D5E6F7894 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F7895 /* APIClient.swift */; };
 		1A2B3C4D5E6F789A /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F789B /* MainTabView.swift */; };
+		1A2B3C4D5E6F78B1 /* DevAssistCore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78C1 /* DevAssistCore.swift */; };
+		1A2B3C4D5E6F78B2 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78C2 /* SettingsView.swift */; };
+		1A2B3C4D5E6F78B3 /* ChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78C3 /* ChatViewModel.swift */; };
+		1A2B3C4D5E6F78B4 /* VideoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78C4 /* VideoViewModel.swift */; };
+		1A2B3C4D5E6F78B5 /* DataAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78C5 /* DataAnalysisView.swift */; };
+		1A2B3C4D5E6F78B6 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78C6 /* NetworkMonitor.swift */; };
+		1A2B3C4D5E6F78B7 /* DeviceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78C7 /* DeviceManager.swift */; };
+		1A2B3C4D5E6F78B8 /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78C8 /* Configuration.swift */; };
+		1A2B3C4D5E6F78B9 /* SecurityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78C9 /* SecurityManager.swift */; };
+		1A2B3C4D5E6F78BA /* SecureAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78CA /* SecureAPIClient.swift */; };
+		1A2B3C4D5E6F78BB /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F78CB /* KeychainManager.swift */; };
 		1A2B3C4D5E6F7896 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F7897 /* Assets.xcassets */; };
 		1A2B3C4D5E6F7898 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1A2B3C4D5E6F7899 /* Info.plist */; };
 /* End PBXBuildFile section */
@@ -21,6 +32,17 @@
 		1A2B3C4D5E6F7893 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1A2B3C4D5E6F7895 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		1A2B3C4D5E6F789B /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78C1 /* DevAssistCore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevAssistCore.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78C2 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78C3 /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewModel.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78C4 /* VideoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewModel.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78C5 /* DataAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataAnalysisView.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78C6 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78C7 /* DeviceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManager.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78C8 /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78C9 /* SecurityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityManager.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78CA /* SecureAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureAPIClient.swift; sourceTree = "<group>"; };
+		1A2B3C4D5E6F78CB /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		1A2B3C4D5E6F7897 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1A2B3C4D5E6F7899 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -59,6 +81,17 @@
 				1A2B3C4D5E6F7893 /* ContentView.swift */,
 				1A2B3C4D5E6F7895 /* APIClient.swift */,
 				1A2B3C4D5E6F789B /* MainTabView.swift */,
+				1A2B3C4D5E6F78C1 /* DevAssistCore.swift */,
+				1A2B3C4D5E6F78C2 /* SettingsView.swift */,
+				1A2B3C4D5E6F78C3 /* ChatViewModel.swift */,
+				1A2B3C4D5E6F78C4 /* VideoViewModel.swift */,
+				1A2B3C4D5E6F78C5 /* DataAnalysisView.swift */,
+				1A2B3C4D5E6F78C6 /* NetworkMonitor.swift */,
+				1A2B3C4D5E6F78C7 /* DeviceManager.swift */,
+				1A2B3C4D5E6F78C8 /* Configuration.swift */,
+				1A2B3C4D5E6F78C9 /* SecurityManager.swift */,
+				1A2B3C4D5E6F78CA /* SecureAPIClient.swift */,
+				1A2B3C4D5E6F78CB /* KeychainManager.swift */,
 				1A2B3C4D5E6F7897 /* Assets.xcassets */,
 				1A2B3C4D5E6F7899 /* Info.plist */,
 			);
@@ -139,6 +172,17 @@
 				1A2B3C4D5E6F7894 /* APIClient.swift in Sources */,
 				1A2B3C4D5E6F7890 /* DevAssistApp.swift in Sources */,
 				1A2B3C4D5E6F789A /* MainTabView.swift in Sources */,
+				1A2B3C4D5E6F78B1 /* DevAssistCore.swift in Sources */,
+				1A2B3C4D5E6F78B2 /* SettingsView.swift in Sources */,
+				1A2B3C4D5E6F78B3 /* ChatViewModel.swift in Sources */,
+				1A2B3C4D5E6F78B4 /* VideoViewModel.swift in Sources */,
+				1A2B3C4D5E6F78B5 /* DataAnalysisView.swift in Sources */,
+				1A2B3C4D5E6F78B6 /* NetworkMonitor.swift in Sources */,
+				1A2B3C4D5E6F78B7 /* DeviceManager.swift in Sources */,
+				1A2B3C4D5E6F78B8 /* Configuration.swift in Sources */,
+				1A2B3C4D5E6F78B9 /* SecurityManager.swift in Sources */,
+				1A2B3C4D5E6F78BA /* SecureAPIClient.swift in Sources */,
+				1A2B3C4D5E6F78BB /* KeychainManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
