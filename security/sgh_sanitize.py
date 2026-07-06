@@ -4,11 +4,11 @@ sgh_sanitize.py — SGHv119 Conflict Resolver + Deduplicator + Bug Hunter
 Root Admin tool: run before every deploy to keep the dashboard lean.
 
 Usage:
-    python3 sgh_sanitize.py                    # report only
-    python3 sgh_sanitize.py --fix              # auto-fix and overwrite
-    python3 sgh_sanitize.py --fix --backup     # fix with .bak backup
-    python3 sgh_sanitize.py --json             # CI/CD JSON output
-    python3 sgh_sanitize.py path/to/file.html  # specific file
+    python3 security/sgh_sanitize.py                    # report only
+    python3 security/sgh_sanitize.py --fix              # auto-fix and overwrite
+    python3 security/sgh_sanitize.py --fix --backup     # fix with .bak backup
+    python3 security/sgh_sanitize.py --json             # CI/CD JSON output
+    python3 security/sgh_sanitize.py path/to/file.html  # specific file
 
 Detects and fixes:
     CONFLICT  Git conflict markers (<<<<<<<, =======, >>>>>>>)
@@ -25,6 +25,8 @@ Detects and fixes:
 import sys, re, json, argparse, shutil, subprocess
 from pathlib import Path
 from collections import Counter, defaultdict
+
+DEFAULT_FILE = Path(__file__).resolve().parent.parent / "web" / "SGHv119.html"
 
 R='\033[91m'; Y='\033[93m'; G='\033[92m'; B='\033[94m'; Z='\033[0m'
 def c(t,col): return f"{col}{t}{Z}" if sys.stdout.isatty() else t
@@ -288,7 +290,7 @@ def run(filepath, fix=False, backup=False, as_json=False):
 
 def main():
     ap = argparse.ArgumentParser(description='SGH Sanitizer')
-    ap.add_argument('file', nargs='?', default='SGHv119.html')
+    ap.add_argument('file', nargs='?', default=str(DEFAULT_FILE))
     ap.add_argument('--fix',    action='store_true', help='auto-fix all fixable issues')
     ap.add_argument('--backup', action='store_true', help='create .bak before fixing')
     ap.add_argument('--json',   action='store_true', help='JSON output for CI/CD')

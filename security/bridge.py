@@ -8,7 +8,7 @@ Usage in iSH:
   export ANTHROPIC_API_KEY="sk-ant-..."
   export OPENAI_API_KEY="sk-..."
   export XAI_API_KEY="xai-..."
-  python3 bridge.py
+  python3 security/bridge.py
   Open the printed bridge URL after launch.
 """
 
@@ -60,8 +60,11 @@ except Exception as e:
 PQC = _CRYPTO_STATUS["ed25519"]
 _sig = _pub = None
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+
 try:
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    sys.path.insert(0, HERE)
     from repmhl import REPMHL
     _repmhl = REPMHL()
     _repmhl.start_session()
@@ -241,8 +244,6 @@ def run_council(question, system=''):
 EXEC_ALLOW = {'ls','pwd','echo','date','uptime','df','du','ps','free','uname',
               'python3','python','node','git','cat','head','tail','wc','grep','find'}
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-
 class BrainHandler(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
 
@@ -266,7 +267,7 @@ class BrainHandler(BaseHTTPRequestHandler):
 
     def _serve_file(self, path, content_type):
         try:
-            with open(os.path.join(HERE, path), 'rb') as f: body = f.read()
+            with open(os.path.join(ROOT, path), 'rb') as f: body = f.read()
             self.send_response(200)
             for k,v in CORS.items(): self.send_header(k,v)
             self.send_header('Content-Type', content_type)
@@ -281,10 +282,10 @@ class BrainHandler(BaseHTTPRequestHandler):
 
         # ── Serve dashboard HTML (same-origin — no ATS block) ─────────────
         if p in ('/', '/SGHv119.html', '/index.html'):
-            self._serve_file('SGHv119.html', 'text/html; charset=utf-8')
+            self._serve_file('web/SGHv119.html', 'text/html; charset=utf-8')
             return
         if p == '/test.html':
-            self._serve_file('test.html', 'text/html; charset=utf-8')
+            self._serve_file('web/SGHv119.html', 'text/html; charset=utf-8')
             return
 
         # ── API ────────────────────────────────────────────────────────────

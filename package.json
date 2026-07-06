@@ -3,6 +3,6 @@
   "version": "4.2.0",
   "private": true,
   "scripts": {
-    "csm:monitor": "node scripts/csm-monitor.js"
+    "csm:monitor": "node backend/node/csm-monitor.js"
   }
 }

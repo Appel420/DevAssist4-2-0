@@ -59,14 +59,14 @@ A secure, production-ready iOS application that combines video streaming with lo
    \`\`\`
 3. Start the continuous security monitor in a third terminal:
    \`\`\`bash
-   node scripts/csm-monitor.js
+   node backend/node/csm-monitor.js
    \`\`\`
 4. Set `DEVASSIST_API_BASE_URL` to the helper-discovered local URL, then open the iOS app in Xcode.
 
 ### Deployment
 1. **iOS**: Use Xcode's archive and upload to App Store Connect
 2. **Backend**: Run locally with Node.js or Docker using the helper-resolved host and port
-3. **CSM**: Keep `node scripts/csm-monitor.js` running while you work
+3. **CSM**: Keep `node backend/node/csm-monitor.js` running while you work
 
 ## 🔐 Local Q-Resist Stack
 
