@@ -1,4 +1,12 @@
+const fs = require("fs")
 const http = require("http")
+const os = require("os")
+const path = require("path")
+
+const statePath = path.join(os.tmpdir(), `devassist-state-${process.pid}.json`)
+process.env.DEVASSIST_STATE_PATH = statePath
+process.env.DEVASSIST_STATE_SECRET = "devassist-test-secret"
+
 const app = require("../index")
 
 function request(method, pathname, payload) {
@@ -51,6 +59,12 @@ function request(method, pathname, payload) {
 }
 
 describe("backend API", () => {
+  afterAll(() => {
+    if (fs.existsSync(statePath)) {
+      fs.unlinkSync(statePath)
+    }
+  })
+
   test("serves health checks on versioned and legacy routes", async () => {
     const response = await request("GET", "/api/v1/health")
 
@@ -79,5 +93,73 @@ describe("backend API", () => {
 
     expect(response.statusCode).toBe(400)
     expect(response.body.error).toBe("Validation failed")
+  })
+
+  test("returns the live security report", async () => {
+    const response = await request("GET", "/api/v1/security/report")
+
+    expect(response.statusCode).toBe(200)
+    expect(response.body).toMatchObject({
+      localOnly: true,
+      runtimeMode: "offline",
+      maxTokens: 2048,
+    })
+    expect(response.body.signature.algorithm).toBe("HMAC-SHA256")
+  })
+
+  test("protects memory deletion with a signature gate", async () => {
+    const createResponse = await request("POST", "/api/v1/memory", {
+      content: "owner note",
+      kind: "text",
+      author: "owner",
+    })
+
+    expect(createResponse.statusCode).toBe(201)
+    const { id, signature } = createResponse.body.memory
+
+    const denied = await request("DELETE", `/api/v1/memory/${id}`)
+    expect(denied.statusCode).toBe(403)
+    expect(denied.body.error).toMatch(/confirmation/i)
+
+    const signed = await new Promise((resolve, reject) => {
+      const server = app.listen(0, () => {
+        const { port } = server.address()
+        const body = null
+        const req = http.request(
+          {
+            host: "127.0.0.1",
+            port,
+            path: `/api/v1/memory/${id}`,
+            method: "DELETE",
+            headers: {
+              "X-DevAssist-Confirm-Delete": "true",
+              "X-DevAssist-Delete-Signature": signature,
+            },
+          },
+          (res) => {
+            res.resume()
+            res.on("end", () => {
+              server.close(() =>
+                resolve({
+                  statusCode: res.statusCode,
+                }),
+              )
+            })
+          },
+        )
+
+        req.on("error", (error) => {
+          server.close(() => reject(error))
+        })
+
+        if (body) {
+          req.write(body)
+        }
+
+        req.end()
+      })
+    })
+
+    expect(signed.statusCode).toBe(204)
   })
 })
