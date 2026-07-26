@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DevAssist Authorization Decision",
+  "type": "object",
+  "required": ["request_id", "decision", "requested_action", "reason", "override"],
+  "properties": {
+    "request_id": { "type": "string", "minLength": 1 },
+    "requested_action": { "type": "string", "minLength": 1 },
+    "decision": { "enum": ["AUTHORIZED", "ACCESS_DENIED", "NEEDS_USER_CONSENT", "UNCERTAIN", "HALLUCINATION_ALERT", "CIRCUIT_OPEN"] },
+    "reason": { "type": "string" },
+    "override": { "const": false },
+    "user_alert": { "type": "boolean" },
+    "options": { "type": "array", "items": { "type": "string" } },
+    "network_accessed": { "const": false },
+    "verdict": {
+      "type": "object",
+      "required": ["algorithm", "signature_status"],
+      "properties": {
+        "algorithm": { "const": "ML-DSA-87" },
+        "signature_status": { "enum": ["unavailable", "verified"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
