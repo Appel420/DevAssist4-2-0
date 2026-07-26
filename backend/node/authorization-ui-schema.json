@@ -2,23 +2,28 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "DevAssist Authorization Decision",
   "type": "object",
-  "required": ["request_id", "decision", "requested_action", "reason", "override"],
+  "required": ["request_id", "requested_action", "decision", "reason", "actor_type", "override", "policy_modified", "scar_id", "network_accessed", "verdict"],
   "properties": {
     "request_id": { "type": "string", "minLength": 1 },
     "requested_action": { "type": "string", "minLength": 1 },
-    "decision": { "enum": ["AUTHORIZED", "ACCESS_DENIED", "NEEDS_USER_CONSENT", "UNCERTAIN", "HALLUCINATION_ALERT", "CIRCUIT_OPEN"] },
-    "reason": { "type": "string" },
-    "override": { "const": false },
+    "decision": { "enum": ["OWNER_AUTHORIZED", "DELEGATED_AUTHORIZED", "CONFIRMATION_REQUIRED", "OWNER_OVERRIDE", "ACCESS_DENIED"] },
+    "reason": { "type": "string", "minLength": 1 },
+    "actor_type": { "enum": ["owner", "delegated", "model", "tool", "plugin", "unknown"] },
+    "confirmation": { "type": "boolean" },
+    "checkpoint_id": { "type": ["string", "null"] },
+    "override": { "type": "boolean" },
+    "override_scope": { "const": "single_action" },
+    "override_lifetime": { "const": "transaction_end" },
+    "policy_modified": { "const": false },
+    "ui_state": { "enum": ["Authorization", "AccessDENIED"] },
     "user_alert": { "type": "boolean" },
     "options": { "type": "array", "items": { "type": "string" } },
+    "scar_id": { "type": "string", "minLength": 1 },
     "network_accessed": { "const": false },
     "verdict": {
       "type": "object",
       "required": ["algorithm", "signature_status"],
-      "properties": {
-        "algorithm": { "const": "ML-DSA-87" },
-        "signature_status": { "enum": ["unavailable", "verified"] }
-      },
+      "properties": { "algorithm": { "const": "ML-DSA-87" }, "signature_status": { "enum": ["unavailable", "verified"] } },
       "additionalProperties": false
     }
   },
