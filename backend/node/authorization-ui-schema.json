@@ -12,20 +12,15 @@
     "confirmation": { "type": "boolean" },
     "checkpoint_id": { "type": ["string", "null"] },
     "override": { "type": "boolean" },
-    "override_scope": { "const": "single_action" },
-    "override_lifetime": { "const": "transaction_end" },
+    "override_scope": { "anyOf": [{ "const": "single_action" }, { "type": "null" }] },
+    "override_lifetime": { "anyOf": [{ "const": "transaction_end" }, { "type": "null" }] },
     "policy_modified": { "const": false },
     "ui_state": { "enum": ["Authorization", "AccessDENIED"] },
     "user_alert": { "type": "boolean" },
     "options": { "type": "array", "items": { "type": "string" } },
     "scar_id": { "type": "string", "minLength": 1 },
     "network_accessed": { "const": false },
-    "verdict": {
-      "type": "object",
-      "required": ["algorithm", "signature_status"],
-      "properties": { "algorithm": { "const": "ML-DSA-87" }, "signature_status": { "enum": ["unavailable", "verified"] } },
-      "additionalProperties": false
-    }
+    "verdict": { "type": "object", "required": ["algorithm", "signature_status"], "properties": { "algorithm": { "const": "ML-DSA-87" }, "signature_status": { "enum": ["unavailable", "verified"] } }, "additionalProperties": false }
   },
   "additionalProperties": false
 }
