@@ -36,7 +36,7 @@
     "/Users",
     "/home"
   ],
-  "required_audit_events": [
+  "required_scars": [
     "audit_started",
     "audit_completed",
     "audit_blocked"
