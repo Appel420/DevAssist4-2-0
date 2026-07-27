@@ -1,0 +1,44 @@
+{
+  "policy_version": "1.0",
+  "name": "devassist420-local-audit",
+  "mode": "OWNER_AUTHORIZED_REVIEW",
+  "allowed_roots": ["repo"],
+  "report_root": "reports",
+  "scratch_root": "scratch",
+  "source_read_only": true,
+  "source_mutation": false,
+  "network_access": false,
+  "credentials_access": false,
+  "cloud_agents": false,
+  "remote_scanners": false,
+  "follow_symlinks": false,
+  "excluded_directories": [
+    ".git",
+    "node_modules",
+    "DerivedData",
+    "build",
+    "dist",
+    ".build",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "reports",
+    "scratch"
+  ],
+  "denied_path_patterns": [
+    "~/.ssh",
+    "~/.aws",
+    "~/.config/gcloud",
+    "~/.azure",
+    "/private/var",
+    "/Users",
+    "/home"
+  ],
+  "required_scars": [
+    "audit_started",
+    "audit_completed",
+    "audit_blocked"
+  ]
+}
