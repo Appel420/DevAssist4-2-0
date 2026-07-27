@@ -21,11 +21,11 @@ Findings must identify the file, symbol or route, observed behavior, and verific
 
 ## State policy
 
-Device-local state is authoritative. External state and synchronization are denied by default and require an explicit, scoped, time-limited owner authorization with a local SCAR event.
+Device-local state is authoritative. External state and synchronization are denied by default and require an explicit, scoped, time-limited owner authorization with a local audit event.
 
-## Sandbox limitation
+## Application guard-rail limitation
 
-Repository scripts can fail closed and avoid unsafe paths, but they cannot enforce kernel-level read-only mounts, process isolation, credential denial, or network blocking. Use an OS/container/VM sandbox for those guarantees.
+Repository scripts can fail closed and avoid unsafe paths, but they cannot enforce kernel-level read-only mounts, process isolation, credential denial, or network blocking. Those guarantees require controls outside this repository.
 
 ## Approval record
 
