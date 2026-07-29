@@ -1,3 +1,16 @@
-# Local runtime artifacts
+# Local audit output
+reports/
+scratch/
+audit-node-env/
+
+# Dependencies and generated environments
+node_modules/
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+
+# Existing local runtime artifacts
 backend/node/.devassist-evidence.jsonl
 backend/node/.devassist-state.json
