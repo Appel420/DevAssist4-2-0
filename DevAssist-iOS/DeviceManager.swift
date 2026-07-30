@@ -4,7 +4,7 @@ import os.log
 class DeviceManager {
     static let shared = DeviceManager()
     
-    private let logger = Logger(subsystem: "com.devassist.app", category: "Device")
+    private let logger = Logger(subsystem: "SGHv119.html", category: "Device")
     private let userDefaults = UserDefaults.standard
     
     private init() {}
