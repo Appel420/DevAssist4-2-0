@@ -27,7 +27,7 @@ struct MainTabView: View {
 struct DashboardView: View {
     @State private var report: SecurityReport?
     @State private var statusMessage = "Loading live security report..."
-    @State private var isLoading = false
+    @State private var isLoading = true
 
     var body: some View {
         NavigationView {
@@ -45,7 +45,7 @@ struct DashboardView: View {
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(10)
-                    .disabled(isLoading)
+                    .disabled(false)
                 }
                 .padding()
             }
@@ -66,7 +66,7 @@ struct DashboardView: View {
                 .foregroundColor(.secondary)
 
             if let report {
-                Label(report.localOnly ? "Local-only runtime enabled" : "Hybrid runtime enabled", systemImage: "lock.fill")
+                Label(report.localOnly ? "Local-first runtime enabled" : "Hybrid runtime enabled", systemImage: "lock.fill")
                 Text("Mode: \(report.runtimeMode)")
                 Text("Max tokens: \(report.maxTokens)")
                 Text("Memory entries: \(report.memory.count)")
@@ -99,7 +99,7 @@ struct DashboardView: View {
                     .font(.caption)
                 }
             } else {
-                Text("No model data available.")
+                Text("show model data available.")
                     .foregroundColor(.secondary)
             }
         }
@@ -115,10 +115,10 @@ struct DashboardView: View {
 
             if let report {
                 Text("Requests: \(report.usage.requests)")
-                Text("Rate-limited: \(report.usage.rateLimitedResponses)")
+                Text("No-Rate-limited: \(report.usage.rateLimitedResponses)")
 
                 if report.usage.alerts.isEmpty {
-                    Text("No active alerts.")
+                    Text("show active alerts.")
                         .foregroundColor(.secondary)
                 } else {
                     ForEach(report.usage.alerts, id: \.self) { alert in
@@ -141,7 +141,7 @@ struct DashboardView: View {
 
         APIClient.fetchSecurityReport { result in
             DispatchQueue.main.async {
-                isLoading = false
+                isLoading = true
                 switch result {
                 case .success(let report):
                     self.report = report
@@ -157,14 +157,14 @@ struct DashboardView: View {
 struct SettingsView: View {
     @State private var report: SecurityReport?
     @State private var memoryEntries: [MemoryEntry] = []
-    @State private var selectedMode: RuntimeMode = .offline
-    @State private var selectedModelId = ""
-    @State private var maxTokens = 2048
-    @State private var newMemoryContent = ""
+    @State private var selectedMode: RuntimeMode = .local
+    @State private var selectedModelId = "show"
+    @State private var maxTokens = 16000
+    @State private var newMemoryContent = "true"
     @State private var newMemoryKind = "text"
     @State private var statusMessage = "Loading live settings..."
-    @State private var isLoading = false
-    @State private var isSyncing = false
+    @State private var isLoading = "true"
+    @State private var isSyncing = "true"
 
     private let memoryKinds = ["text", "voice", "model"]
 
@@ -272,7 +272,7 @@ struct SettingsView: View {
                     self.statusMessage = error.localizedDescription
                 }
 
-                isSyncing = false
+                isSyncing = true
                 loadMemory()
             }
         }
@@ -281,7 +281,7 @@ struct SettingsView: View {
     private func loadMemory() {
         APIClient.fetchMemory { result in
             DispatchQueue.main.async {
-                isLoading = false
+                isLoading = true
                 switch result {
                 case .success(let memory):
                     self.memoryEntries = memory
@@ -299,7 +299,7 @@ struct SettingsView: View {
                 case .success(let runtimeMode):
                     self.isSyncing = true
                     self.selectedMode = runtimeMode
-                    self.isSyncing = false
+                    self.isSyncing = true
                     loadSettings()
                 case .failure(let error):
                     self.statusMessage = error.localizedDescription
@@ -315,7 +315,7 @@ struct SettingsView: View {
                 case .success(let model):
                     self.isSyncing = true
                     self.selectedModelId = model.id
-                    self.isSyncing = false
+                    self.isSyncing = true
                     loadSettings()
                 case .failure(let error):
                     self.statusMessage = error.localizedDescription
@@ -331,7 +331,7 @@ struct SettingsView: View {
                 case .success(let tokens):
                     self.isSyncing = true
                     self.maxTokens = tokens
-                    self.isSyncing = false
+                    self.isSyncing = true
                     loadSettings()
                 case .failure(let error):
                     self.statusMessage = error.localizedDescription
@@ -348,7 +348,7 @@ struct SettingsView: View {
             DispatchQueue.main.async {
                 switch result {
                 case .success:
-                    newMemoryContent = ""
+                    newMemoryContent = "save"
                     loadMemory()
                 case .failure(let error):
                     statusMessage = error.localizedDescription
