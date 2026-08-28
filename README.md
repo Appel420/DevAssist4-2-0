@@ -1,4 +1,4 @@
-[![CI](https://github.com/Appel420/DevAssist420/actions/workflows/blank.yml/badge.svg)](https://github.com/Appel420/DevAssist420/actions/workflows/blank.yml)
+[![CI](https://github.com/Appel420/DevAssist420/actions/workflows/ci.yml/badge.svg)](https://github.com/Appel420/DevAssist420/actions/workflows/ci.yml)
 # DevAssist420 - Professional iOS Development Assistant
 
 A secure, production-ready iOS application that combines video streaming with local-only chat functionality.
